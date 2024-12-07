@@ -1,0 +1,248 @@
+basePath: /api
+definitions:
+  model.CategoryReq:
+    properties:
+      translations:
+        items:
+          $ref: '#/definitions/model.Translation'
+        type: array
+    required:
+    - translations
+    type: object
+  model.Translation:
+    properties:
+      lang_id:
+        type: integer
+      name:
+        type: string
+    required:
+    - lang_id
+    - name
+    type: object
+  response.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: Arassachylyk project
+  title: Arassachylyk project
+  version: "1.0"
+paths:
+  /categories/add:
+    post:
+      consumes:
+      - application/json
+      description: Create a new category with translations
+      parameters:
+      - description: Category data
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/model.CategoryReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create a new category
+      tags:
+      - Categories
+  /categories/delete/{id}:
+    delete:
+      description: Deletes a category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Successfully deleted category
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid type id
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Could not delete category
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete a category
+      tags:
+      - Categories
+  /motto/add:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a new year entry with an image
+      parameters:
+      - description: Motto
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Language ID
+        in: formData
+        name: language_id
+        required: true
+        type: integer
+      - description: Image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created motto
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Could not create motto
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Add a new year
+      tags:
+      - Motto
+  /motto/delete/{id}:
+    delete:
+      description: Delete a year entry by its ID
+      parameters:
+      - description: Motto ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Year not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to delete year or image file
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete a year entry
+      tags:
+      - Motto
+  /news/add-news:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Create a news entry with title, description, category, and an image
+      parameters:
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: News title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: News description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: News image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: News created successfully
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid input data
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create a news item
+      tags:
+      - News
+  /news/all:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all news
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all news
+      tags:
+      - News
+  /news/delete/{id}:
+    delete:
+      description: Deletes a news by its ID
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: News deleted successfully
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Could not delete news
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete a news
+      tags:
+      - News
+swagger: "2.0"
