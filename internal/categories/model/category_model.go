@@ -1,7 +1,7 @@
 package model
 
 type Category struct {
-	ID           int           `json:"id"`
+	ID           int           `json:"id" db:"id"`
 	Translations []Translation `json:"translations" binding:"required"`
 }
 
@@ -12,4 +12,9 @@ type Translation struct {
 
 type CategoryReq struct {
 	Translations []Translation `json:"translations" binding:"required"`
+}
+
+type CategoryRes struct {
+	ID   int    `json:"id"`
+	Name string `json:"name" binding:"required"`
 }

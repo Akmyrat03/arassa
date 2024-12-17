@@ -16,7 +16,7 @@ func InitYearRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 
 	mottoRoutes := router.Group("/motto")
 
-	mottoRoutes.POST("/add", mottoHandler.AddYear)
-	mottoRoutes.DELETE("/delete/:id", mottoHandler.DeleteYear)
+	mottoRoutes.POST("/add", mottoHandler.AddMotto)
+	mottoRoutes.DELETE("/delete/:id", mottoHandler.DeleteMotto)
 
 }

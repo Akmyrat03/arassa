@@ -19,21 +19,31 @@ func NewCategoryHandler(service *service.CategoryService) *CategoryHandler {
 }
 
 // CreateCategory
-// @Summary Create a new category
-// @Description Create a new category with translations
-// @Tags Categories
-// @Accept json
-// @Produce json
-// @Param category body model.CategoryReq true "Category data"
-// @Success 200 {object} map[string]interface{}
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router /categories/add [post]
+// @Summary      Create a new category
+// @Description  Create a new category with translations for Turkmen, English, and Russian
+// @Tags         Categories
+// @Accept       multipart/form-data
+// @Produce      json
+// @Param        category_tkm  formData  string  true  "Category name in Turkmen"
+// @Param        category_eng  formData  string  true  "Category name in English"
+// @Param        category_rus  formData  string  true  "Category name in Russian"
+// @Success      200 {object} map[string]interface{} "Category created successfully"
+// @Failure      400 {object} map[string]interface{} "Invalid input"
+// @Failure      500 {object} map[string]interface{} "Internal server error"
+// @Router       /categories/add [post]
 func (h *CategoryHandler) CreateCategory(c *gin.Context) {
-	var req model.Category
-	if err := c.ShouldBindJSON(&req); err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
+	categoryTkm := c.PostForm("category_tkm")
+	categoryEng := c.PostForm("category_eng")
+	categoryRus := c.PostForm("category_rus")
+
+	translations := []model.Translation{
+		{Name: categoryTkm, LangID: 1},
+		{Name: categoryEng, LangID: 2},
+		{Name: categoryRus, LangID: 3},
+	}
+
+	req := model.CategoryReq{
+		Translations: translations,
 	}
 
 	id, err := h.service.Create(req)
@@ -48,48 +58,6 @@ func (h *CategoryHandler) CreateCategory(c *gin.Context) {
 	})
 
 }
-
-// UpdateCategory updates an existing category
-// @Summary Update an existing category
-// @Description Update the name of a category by ID
-// @Tags Categories
-// @Accept multipart/form-data
-// @Produce json
-// @Param id path int true "Category ID"
-// @Param name formData string true "Updated category name"
-// @Success 200 {object} response.ErrorResponse "Category updated successfully"
-// @Failure 400 {object} response.ErrorResponse "Invalid input data"
-// @Failure 404 {object} response.ErrorResponse "Category not found"
-// @Failure 500 {object} response.ErrorResponse "Could not update category"
-// @Router /categories/update/{id} [put]
-// func (h *CategoryHandler) UpdateCategory(c *gin.Context) {
-// 	id, err := strconv.Atoi(c.Param("id"))
-// 	if err != nil {
-// 		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid ID")
-// 		return
-// 	}
-
-// 	name := c.PostForm("name")
-// 	if name == "" {
-// 		handler.NewErrorResponse(c, http.StatusBadRequest, "Category name is required")
-// 		return
-// 	}
-
-// 	input := model.Category{
-// 		ID:   id,
-// 		Name: name,
-// 	}
-
-// 	err = h.service.Update(id, input)
-// 	if err != nil {
-// 		handler.NewErrorResponse(c, http.StatusInternalServerError, "Could not update category")
-// 		return
-// 	}
-
-// 	c.JSON(http.StatusOK, map[string]interface{}{
-// 		"message": "Category updated successfully",
-// 	})
-// }
 
 // DeleteCategory deletes a category
 // @Summary Delete a category
@@ -119,22 +87,65 @@ func (h *CategoryHandler) DeleteCategory(c *gin.Context) {
 
 }
 
-// GetAllCategories retrieves all categories
-// @Summary Get all categories
-// @Description Retrieves a list of all categories
+// GetAllCategoriesTKM
+// @Summary Get all categories in Turkmen language
+// @Description Retrieves all categories available in the Turkmen language.
 // @Tags Categories
+// @Accept json
 // @Produce json
-// @Success 200 {object} response.ErrorResponse "List of all categories"
-// @Failure 500 {object} response.ErrorResponse "Failed to get all categories"
-// // @Router /categories/view-all [get]
-// func (h *CategoryHandler) GetAllCategories(c *gin.Context) {
-// 	categories, err := h.service.GetAll()
-// 	if err != nil {
-// 		handler.NewErrorResponse(c, http.StatusInternalServerError, "Failed to get all categories")
-// 		return
-// 	}
+// @Success 200 {object} response.ErrorResponse "List of categories"
+// @Failure 400 {object} response.ErrorResponse "Bad request "
+// @Router /categories/tkm [get]
+func (h *CategoryHandler) GetAllCategoriesTKM(c *gin.Context) {
+	categories, err := h.service.GetAllByLangID(1)
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
 
-// 	c.JSON(http.StatusOK, map[string]interface{}{
-// 		"categories": categories,
-// 	})
-// }
+	c.JSON(http.StatusOK, gin.H{
+		"kategoriyalar": categories,
+	})
+}
+
+// GetAllCategoriesTKM
+// @Summary Get all categories in English language
+// @Description Retrieves all categories available in the English language.
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.ErrorResponse "List of categories"
+// @Failure 400 {object} response.ErrorResponse "Bad request "
+// @Router /categories/eng [get]
+func (h *CategoryHandler) GetAllCategoriesENG(c *gin.Context) {
+	categories, err := h.service.GetAllByLangID(2)
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"categories": categories,
+	})
+}
+
+// GetAllCategoriesTKM
+// @Summary Get all categories in Russian language
+// @Description Retrieves all categories available in the Russian language.
+// @Tags Categories
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.ErrorResponse "List of categories"
+// @Failure 400 {object} response.ErrorResponse "Bad request "
+// @Router /categories/rus [get]
+func (h *CategoryHandler) GetAllCategoriesRUS(c *gin.Context) {
+	categories, err := h.service.GetAllByLangID(3)
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"категории": categories,
+	})
+}

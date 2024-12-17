@@ -67,36 +67,116 @@ func (r *NewsRepository) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
+	q := `DELETE FROM news_translate WHERE id=$1`
+	_, err = r.DB.Exec(q, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func (r *NewsRepository) GetNewsByID(id int) (model.News, error) {
+func (r *NewsRepository) GetByID(id int) (model.News, error) {
 	var news model.News
-	query := `SELECT n.id, n.title, n.description, n.image, n.created_at, c.name AS category_name FROM news AS n INNER JOIN categories AS c ON n.category_id = c.id WHERE n.id=$1`
-	err := r.DB.Get(&news, query, id)
+	translations := []model.Translation{}
+	query := `
+		SELECT n.id AS news_id, n.category_id, n.image, n.created_at, nt.title, nt.description, nt.lang_id 
+		FROM news AS n 
+		LEFT JOIN news_translate AS nt ON nt.news_id = n.id 
+		WHERE n.id=$1
+	`
+	rows, err := r.DB.Query(query, id)
 	if err != nil {
-		return model.News{}, err
+		return news, err
 	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var translation model.Translation
+		err := rows.Scan(
+			&news.ID, &news.CategoryID, &news.ImageURL, &news.CreatedAt, &translation.Title, &translation.Description, &translation.LangID,
+		)
+		if err != nil {
+			return news, err
+		}
+		translations = append(translations, translation)
+	}
+	news.Translations = translations
 	return news, nil
 }
 
-func (r *NewsRepository) GetAll() ([]model.News, error) {
-	var news []model.News
-	query := `SELECT n.id, n.title, n.description, n.image, n.created_at, c.id AS category_id, c.name AS category_name FROM news AS n INNER JOIN categories AS c ON n.category_id = c.id`
-	err := r.DB.Select(&news, query)
+func (r *NewsRepository) GetAllNewsByLangID(langID int) ([]model.NewsLang, error) {
+	var newsListTKM []model.NewsLang
+	query := `
+	SELECT 
+		n.id AS news_id, nt.title, ct.name AS category, nt.description, n.image, n.created_at 
+	FROM 
+		news_translate AS nt 
+	INNER JOIN 
+		news AS n ON nt.news_id= n.id 
+	INNER JOIN 
+		cat_translate AS ct ON n.category_id=ct.cat_id AND nt.lang_id=ct.lang_id 
+	WHERE 
+		nt.lang_id = $1
+	`
+	rows, err := r.DB.Query(query, langID)
 	if err != nil {
 		return nil, err
 	}
-	return news, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var news model.NewsLang
+		err := rows.Scan(
+			&news.ID, &news.Title, &news.CategoryName, &news.Description, &news.ImageURL, &news.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		newsListTKM = append(newsListTKM, news)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return newsListTKM, nil
 }
 
-func (r *NewsRepository) GetByCategoryID(id int) (model.News, error) {
-	var news model.News
-	query := `SELECT n.id, n.title, n.description, n.image, n.created_at, c.id AS category_id, c.name AS category_name FROM news AS n INNER JOIN categories AS c ON n.category_id = c.id WHERE c.id=$1`
-	err := r.DB.Get(&news, query, id)
+func (r *NewsRepository) GetAllNewsByLangAndCategory(langID, categoryID int) ([]model.NewsLang, error) {
+	var newsList []model.NewsLang
+	query := `
+	SELECT 
+		n.id AS news_id, nt.title, ct.name AS category, nt.description, n.image, n.created_at 
+	FROM 
+		news_translate AS nt 
+	INNER JOIN 
+		news AS n ON nt.news_id = n.id 
+	INNER JOIN 
+		cat_translate AS ct ON n.category_id = ct.cat_id AND nt.lang_id = ct.lang_id 
+	WHERE 
+		nt.lang_id = $1 AND n.category_id = $2
+	`
+	rows, err := r.DB.Query(query, langID, categoryID)
 	if err != nil {
-		return model.News{}, err
+		return nil, err
 	}
-	return news, nil
+	defer rows.Close()
+
+	for rows.Next() {
+		var news model.NewsLang
+		err := rows.Scan(
+			&news.ID, &news.Title, &news.CategoryName, &news.Description, &news.ImageURL, &news.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		newsList = append(newsList, news)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return newsList, nil
 }

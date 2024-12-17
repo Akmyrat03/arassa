@@ -4,7 +4,6 @@ import (
 	"arassachylyk/internal/news/model"
 	"arassachylyk/internal/news/service"
 	handler "arassachylyk/pkg/response"
-	"encoding/json"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -21,6 +20,24 @@ func NewHandler(service *service.NewsService) *NewsHandler {
 	return &NewsHandler{service: service}
 }
 
+// CreateNews handles the creation of news items with multilingual support.
+// @Summary Create a news item
+// @Description Creates a news item with category, image, and translations in Turkmen, English, and Russian
+// @Tags News
+// @Accept multipart/form-data
+// @Produce json
+// @Param category_id formData int true "Category ID"
+// @Param image formData file true "Image file"
+// @Param title_tkm formData string true "Title in Turkmen"
+// @Param description_tkm formData string true "Description in Turkmen"
+// @Param title_eng formData string true "Title in English"
+// @Param description_eng formData string true "Description in English"
+// @Param title_rus formData string true "Title in Russian"
+// @Param description_rus formData string true "Description in Russian"
+// @Success 200 {object} response.ErrorResponse "Successfully created news"
+// @Failure 400 {object} response.ErrorResponse "Invalid input or bad request"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
+// @Router /news/add-news [post]
 func (h *NewsHandler) CreateNews(c *gin.Context) {
 	var news model.News
 
@@ -49,17 +66,19 @@ func (h *NewsHandler) CreateNews(c *gin.Context) {
 		return
 	}
 
-	// var translations []model.Translation
-	// if err := c.ShouldBindJSON(&translations); err != nil {
-	// 	handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid translations")
-	// 	return
-	// }
+	titleTKM := c.PostForm("title_tkm")
+	descriptionTKM := c.PostForm("description_tkm")
 
-	translationsStr := c.PostForm("translations")
-	var translations []model.Translation
-	if err := json.Unmarshal([]byte(translationsStr), &translations); err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid translations")
-		return
+	titleENG := c.PostForm("title_eng")
+	descriptionENG := c.PostForm("description_eng")
+
+	titleRUS := c.PostForm("title_rus")
+	descriptionRUS := c.PostForm("description_rus")
+
+	translations := []model.Translation{
+		{LangID: 1, Title: titleTKM, Description: descriptionTKM},
+		{LangID: 2, Title: titleENG, Description: descriptionENG},
+		{LangID: 3, Title: titleRUS, Description: descriptionRUS},
 	}
 
 	news = model.News{
@@ -121,19 +140,19 @@ func (h *NewsHandler) DeleteNews(c *gin.Context) {
 	})
 }
 
-// GetAllNews
-// @Summary Get all news
-// @Description Get a list of all news
-// @Tags News
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.ErrorResponse "Success"
-// @Failure 400 {object} response.ErrorResponse "Bad Request"
-// @Router /news/all [get]
-func (h *NewsHandler) GetAllNews(c *gin.Context) {
-	news, err := h.service.GetAll()
+// GetAllNewsTKM
+// @Summary      Get all news in Turkmen language
+// @Description  Retrieves a list of all news with titles, descriptions, categories, and images in Turkmen language.
+// @Tags         News
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} response.ErrorResponse "Successfully get all news in Turkmen language"
+// @Failure      500 {object} response.ErrorResponse "Internal server error"
+// @Router       /news/tkm [get]
+func (h *NewsHandler) GetAllNewsTKM(c *gin.Context) {
+	news, err := h.service.GetAllNewsByLangID(1)
 	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -142,14 +161,74 @@ func (h *NewsHandler) GetAllNews(c *gin.Context) {
 	})
 }
 
-func (h *NewsHandler) GetNewsByCategoryID(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+// GetAllNewsENG
+// @Summary      Get all news in English language
+// @Description  Retrieves a list of all news with titles, descriptions, categories, and images in Turkmen language.
+// @Tags         News
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} response.ErrorResponse "Successfully get all news in English language"
+// @Failure      500 {object} response.ErrorResponse "Internal server error"
+// @Router       /news/eng [get]
+func (h *NewsHandler) GetAllNewsENG(c *gin.Context) {
+	news, err := h.service.GetAllNewsByLangID(2)
 	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+		handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	news, err := h.service.GetByCategoryID(id)
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"news": news,
+	})
+}
+
+// GetAllNewsENG
+// @Summary      Get all news in Russian language
+// @Description  Retrieves a list of all news with titles, descriptions, categories, and images in Turkmen language.
+// @Tags         News
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} response.ErrorResponse "Successfully get all news in Russian language"
+// @Failure      500 {object} response.ErrorResponse "Internal server error"
+// @Router       /news/rus [get]
+func (h *NewsHandler) GetAllNewsRUS(c *gin.Context) {
+	news, err := h.service.GetAllNewsByLangID(3)
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"news": news,
+	})
+}
+
+// GetAllNewsByLangAndCategory
+// @Summary      Get all news by language and category
+// @Description  Fetch all news based on language ID and category ID
+// @Tags         News
+// @Accept       json
+// @Produce      json
+// @Param        lang_id     query     int  true  "Language ID (e.g., 1 for Turkmen, 2 for Russian)"
+// @Param        category_id query     int  true  "Category ID"
+// @Success      200 {object} map[string]interface{} "List of news"
+// @Failure      400 {object} map[string]interface{} "Invalid input"
+// @Failure      500 {object} map[string]interface{} "Internal server error"
+// @Router       /news/category [get]
+func (h *NewsHandler) GetAllNewsByLangAndCategory(c *gin.Context) {
+	langID, err := strconv.Atoi(c.Query("lang_id"))
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid language ID")
+		return
+	}
+
+	categoryID, err := strconv.Atoi(c.Query("category_id"))
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid category ID")
+		return
+	}
+
+	news, err := h.service.GetAllNewsByLangAndCategory(langID, categoryID)
 	if err != nil {
 		handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

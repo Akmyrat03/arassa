@@ -20,25 +20,29 @@ func NewYearHandler(service *service.MottoService) *MottoHandler {
 	return &MottoHandler{service: service}
 }
 
-// AddYear adds a new year
-// @Summary Add a new year
-// @Description Add a new year entry with an image
+// AddMotto
+// @Summary Add a new motto
+// @Description Adds a new motto with translations and an uploaded image.
 // @Tags Motto
 // @Accept multipart/form-data
 // @Produce json
-// @Param name formData string true "Motto"
-// @Param language_id formData int true "Language ID"
-// @Param image formData file true "Image file"
+// @Param name_tkm formData string true "Motto name in Turkmen"
+// @Param name_eng formData string true "Motto name in English"
+// @Param name_rus formData string true "Motto name in Russian"
+// @Param image formData file true "Motto image file"
 // @Success 200 {object} response.ErrorResponse "Successfully created motto"
-// @Failure 400 {object} response.ErrorResponse "Invalid input"
-// @Failure 500 {object} response.ErrorResponse "Could not create motto"
+// @Failure 400 {object} response.ErrorResponse "Bad request error message"
+// @Failure 500 {object} response.ErrorResponse "Internal server error message"
 // @Router /motto/add [post]
-func (h *MottoHandler) AddYear(c *gin.Context) {
-	name := c.PostForm("name")
-	languageId, err := strconv.Atoi(c.PostForm("language_id"))
-	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
+func (h *MottoHandler) AddMotto(c *gin.Context) {
+	nameTkm := c.PostForm("name_tkm")
+	nameEng := c.PostForm("name_eng")
+	nameRus := c.PostForm("name_rus")
+
+	translations := []model.Translation{
+		{LangID: 1, Name: nameTkm},
+		{LangID: 2, Name: nameEng},
+		{LangID: 3, Name: nameRus},
 	}
 
 	image, err := c.FormFile("image")
@@ -47,7 +51,7 @@ func (h *MottoHandler) AddYear(c *gin.Context) {
 		return
 	}
 
-	uploadDir := "./uploads/years"
+	uploadDir := "./uploads/motto"
 
 	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
 		os.Mkdir(uploadDir, 0755)
@@ -61,9 +65,8 @@ func (h *MottoHandler) AddYear(c *gin.Context) {
 	}
 
 	input := model.Motto{
-		Name:       name,
-		LanguageID: languageId,
-		ImageURL:   filepath,
+		ImageURL:     filepath,
+		Translations: translations,
 	}
 
 	id, err := h.service.Create(input)
@@ -78,18 +81,19 @@ func (h *MottoHandler) AddYear(c *gin.Context) {
 	})
 }
 
-// DeleteYear deletes a year
-// @Summary Delete a year entry
-// @Description Delete a year entry by its ID
+// DeleteMotto
+// @Summary Delete a motto
+// @Description Deletes a motto by ID and removes the associated image file if it exists.
 // @Tags Motto
+// @Accept json
 // @Produce json
 // @Param id path int true "Motto ID"
 // @Success 200 {object} response.ErrorResponse "Successfully deleted"
-// @Failure 400 {object} response.ErrorResponse "Invalid ID"
-// @Failure 404 {object} response.ErrorResponse "Year not found"
-// @Failure 500 {object} response.ErrorResponse "Failed to delete year or image file"
+// @Failure 400 {object} response.ErrorResponse "Bad request"
+// @Failure 404 {object} response.ErrorResponse "Motto not found"
+// @Failure 500 {object} response.ErrorResponse "Internal server error"
 // @Router /motto/delete/{id} [delete]
-func (h *MottoHandler) DeleteYear(c *gin.Context) {
+func (h *MottoHandler) DeleteMotto(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())

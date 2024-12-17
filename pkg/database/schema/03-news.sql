@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS news_translate (
     news_id INT REFERENCES news (id) ON DELETE CASCADE,
     lang_id INT REFERENCES languages (id) ON DELETE CASCADE,
     title VARCHAR(100) NOT NULL,
-    description VARCHAR(255) NOT NULL
+    description TEXT
 );
 
 

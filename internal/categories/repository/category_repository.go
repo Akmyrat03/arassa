@@ -20,7 +20,7 @@ func NewCategoryRepository(DB *sqlx.DB) *CategoryRepository {
 	return &CategoryRepository{DB: DB}
 }
 
-func (r *CategoryRepository) Create(category model.Category) (int, error) {
+func (r *CategoryRepository) Create(category model.CategoryReq) (int, error) {
 	tx, err := r.DB.Begin()
 	if err != nil {
 		log.Println("Error starting transaction")
@@ -53,15 +53,6 @@ func (r *CategoryRepository) Create(category model.Category) (int, error) {
 	return categoryID, nil
 }
 
-// func (r *CategoryRepository) Update(id int, category model.Category) error {
-// 	query := fmt.Sprintf("UPDATE %v SET name=$1 WHERE id=$2", CATEGORIES)
-// 	_, err := r.DB.Exec(query, category.Name, id)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
 func (r *CategoryRepository) Delete(id int) error {
 	query := fmt.Sprintf("DELETE FROM %v WHERE id = $1", CATEGORIES)
 	_, err := r.DB.Exec(query, id)
@@ -72,12 +63,38 @@ func (r *CategoryRepository) Delete(id int) error {
 	return nil
 }
 
-// func (r *CategoryRepository) GetAll() ([]model.CategoryResponse, error) {
-// 	var categories []model.CategoryResponse
-// 	query := `SELECT c.id, c.name AS name, l.name AS language_name FROM categories AS c INNER JOIN languages AS l ON c.language_id = l.id`
-// 	err := r.DB.Select(&categories, query)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return categories, nil
-// }
+func (r *CategoryRepository) GetAllByLangID(langId int) ([]model.CategoryRes, error) {
+	var category []model.CategoryRes
+	query := `
+		SELECT 
+			c.id, ct.name 
+		FROM 
+			categories AS c 
+		INNER JOIN 
+			cat_translate AS ct ON c.id=ct.cat_id 
+		INNER JOIN 
+			languages AS l ON l.id=ct.lang_id 
+		WHERE lang_id = $1	
+		`
+	rows, err := r.DB.Query(query, langId)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var res model.CategoryRes
+		err := rows.Scan(&res.ID, &res.Name)
+		if err != nil {
+			return nil, err
+		}
+		category = append(category, res)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return category, nil
+}

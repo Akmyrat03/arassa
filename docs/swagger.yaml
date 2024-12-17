@@ -1,24 +1,5 @@
 basePath: /api
 definitions:
-  model.CategoryReq:
-    properties:
-      translations:
-        items:
-          $ref: '#/definitions/model.Translation'
-        type: array
-    required:
-    - translations
-    type: object
-  model.Translation:
-    properties:
-      lang_id:
-        type: integer
-      name:
-        type: string
-    required:
-    - lang_id
-    - name
-    type: object
   response.ErrorResponse:
     properties:
       message:
@@ -34,31 +15,43 @@ paths:
   /categories/add:
     post:
       consumes:
-      - application/json
-      description: Create a new category with translations
+      - multipart/form-data
+      description: Create a new category with translations for Turkmen, English, and
+        Russian
       parameters:
-      - description: Category data
-        in: body
-        name: category
+      - description: Category name in Turkmen
+        in: formData
+        name: category_tkm
         required: true
-        schema:
-          $ref: '#/definitions/model.CategoryReq'
+        type: string
+      - description: Category name in English
+        in: formData
+        name: category_eng
+        required: true
+        type: string
+      - description: Category name in Russian
+        in: formData
+        name: category_rus
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Category created successfully
           schema:
             additionalProperties: true
             type: object
         "400":
-          description: Bad Request
+          description: Invalid input
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            additionalProperties: true
+            type: object
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            additionalProperties: true
+            type: object
       summary: Create a new category
       tags:
       - Categories
@@ -87,23 +80,188 @@ paths:
       summary: Delete a category
       tags:
       - Categories
-  /motto/add:
+  /categories/eng:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories available in the English language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: 'Bad request '
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all categories in English language
+      tags:
+      - Categories
+  /categories/rus:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories available in the Russian language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: 'Bad request '
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all categories in Russian language
+      tags:
+      - Categories
+  /categories/tkm:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories available in the Turkmen language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: 'Bad request '
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all categories in Turkmen language
+      tags:
+      - Categories
+  /contact/message:
     post:
       consumes:
-      - multipart/form-data
-      description: Add a new year entry with an image
+      - application/x-www-form-urlencoded
+      description: Send a message from a contact form
       parameters:
-      - description: Motto
+      - description: Name of the sender
         in: formData
         name: name
         required: true
         type: string
-      - description: Language ID
+      - description: Email of the sender
         in: formData
-        name: language_id
+        name: email
+        required: true
+        type: string
+      - description: Message content
+        in: formData
+        name: message
+        required: true
+        type: string
+      - description: Phone number of the sender
+        in: formData
+        name: phone_number
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Mesaj başarıyla gönderildi
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: All fields are required
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Mesaj gönderilemedi
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Send a contact message
+      tags:
+      - Contact
+  /images/add:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload images to the server and save their paths in the database.
+      parameters:
+      - description: Upload multiple images
+        in: formData
+        name: images
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully added images
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: No images uploaded
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to save images to database
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Upload multiple images
+      tags:
+      - Images
+  /images/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an image from the server and remove its record from the
+        database.
+      parameters:
+      - description: Image ID
+        in: path
+        name: id
         required: true
         type: integer
-      - description: Image file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted image
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Can't delete image
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete an image
+      tags:
+      - Images
+  /motto/add:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Adds a new motto with translations and an uploaded image.
+      parameters:
+      - description: Motto name in Turkmen
+        in: formData
+        name: name_tkm
+        required: true
+        type: string
+      - description: Motto name in English
+        in: formData
+        name: name_eng
+        required: true
+        type: string
+      - description: Motto name in Russian
+        in: formData
+        name: name_rus
+        required: true
+        type: string
+      - description: Motto image file
         in: formData
         name: image
         required: true
@@ -116,19 +274,22 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Invalid input
+          description: Bad request error message
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Could not create motto
+          description: Internal server error message
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Add a new year
+      summary: Add a new motto
       tags:
       - Motto
   /motto/delete/{id}:
     delete:
-      description: Delete a year entry by its ID
+      consumes:
+      - application/json
+      description: Deletes a motto by ID and removes the associated image file if
+        it exists.
       parameters:
       - description: Motto ID
         in: path
@@ -143,55 +304,76 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Invalid ID
+          description: Bad request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "404":
-          description: Year not found
+          description: Motto not found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Failed to delete year or image file
+          description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Delete a year entry
+      summary: Delete a motto
       tags:
       - Motto
   /news/add-news:
     post:
       consumes:
       - multipart/form-data
-      description: Create a news entry with title, description, category, and an image
+      description: Creates a news item with category, image, and translations in Turkmen,
+        English, and Russian
       parameters:
       - description: Category ID
         in: formData
         name: category_id
         required: true
         type: integer
-      - description: News title
-        in: formData
-        name: title
-        required: true
-        type: string
-      - description: News description
-        in: formData
-        name: description
-        required: true
-        type: string
-      - description: News image file
+      - description: Image file
         in: formData
         name: image
         required: true
         type: file
+      - description: Title in Turkmen
+        in: formData
+        name: title_tkm
+        required: true
+        type: string
+      - description: Description in Turkmen
+        in: formData
+        name: description_tkm
+        required: true
+        type: string
+      - description: Title in English
+        in: formData
+        name: title_eng
+        required: true
+        type: string
+      - description: Description in English
+        in: formData
+        name: description_eng
+        required: true
+        type: string
+      - description: Title in Russian
+        in: formData
+        name: title_rus
+        required: true
+        type: string
+      - description: Description in Russian
+        in: formData
+        name: description_rus
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: News created successfully
+          description: Successfully created news
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Invalid input data
+          description: Invalid input or bad request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
@@ -201,23 +383,41 @@ paths:
       summary: Create a news item
       tags:
       - News
-  /news/all:
+  /news/category:
     get:
       consumes:
       - application/json
-      description: Get a list of all news
+      description: Fetch all news based on language ID and category ID
+      parameters:
+      - description: Language ID (e.g., 1 for Turkmen, 2 for Russian)
+        in: query
+        name: lang_id
+        required: true
+        type: integer
+      - description: Category ID
+        in: query
+        name: category_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Success
+          description: List of news
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
+            additionalProperties: true
+            type: object
         "400":
-          description: Bad Request
+          description: Invalid input
           schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all news
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all news by language and category
       tags:
       - News
   /news/delete/{id}:
@@ -243,6 +443,66 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
       summary: Delete a news
+      tags:
+      - News
+  /news/eng:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all news with titles, descriptions, categories,
+        and images in Turkmen language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully get all news in English language
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all news in English language
+      tags:
+      - News
+  /news/rus:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all news with titles, descriptions, categories,
+        and images in Turkmen language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully get all news in Russian language
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all news in Russian language
+      tags:
+      - News
+  /news/tkm:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all news with titles, descriptions, categories,
+        and images in Turkmen language.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully get all news in Turkmen language
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all news in Turkmen language
       tags:
       - News
 swagger: "2.0"

@@ -18,5 +18,8 @@ func InitCatRoutes(router *gin.RouterGroup, DB *sqlx.DB) {
 	catRoutes.POST("/add", catHand.CreateCategory)
 	catRoutes.DELETE("/delete/:id", catHand.DeleteCategory)
 	// catRoutes.PUT("/update/:id", catHand.UpdateCategory)
-	// catRoutes.GET("/view-all", catHand.GetAllCategories)
+	catRoutes.GET("/tkm", catHand.GetAllCategoriesTKM)
+	catRoutes.GET("/eng", catHand.GetAllCategoriesENG)
+	catRoutes.GET("/rus", catHand.GetAllCategoriesRUS)
+
 }

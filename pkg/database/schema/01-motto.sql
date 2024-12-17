@@ -1,8 +1,13 @@
 CREATE TABLE IF NOT EXISTS motto (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    language_id INT REFERENCES languages (id) ON DELETE CASCADE,
     image_url VARCHAR(255) NOT NULL
 );
 
+
+CREATE TABLE IF NOT EXISTS motto_translate(
+    id SERIAL PRIMARY KEY,
+    motto_id INT REFERENCES motto (id) ON DELETE CASCADE,
+    lang_id INT REFERENCES languages (id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL
+);
 

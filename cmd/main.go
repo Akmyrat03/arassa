@@ -3,8 +3,11 @@ package main
 import (
 	_ "arassachylyk/docs"
 	catRoutes "arassachylyk/internal/categories/routes"
-	yearRoutes "arassachylyk/internal/motto/routes"
+	contactRoutes "arassachylyk/internal/contact/routes"
+	imgRoutes "arassachylyk/internal/images/routes"
+	mottoRoutes "arassachylyk/internal/motto/routes"
 	newsRoutes "arassachylyk/internal/news/routes"
+
 	"arassachylyk/pkg/database"
 	"log"
 
@@ -44,22 +47,21 @@ func main() {
 
 	app := gin.Default()
 
-	// Add CORS middleware
-	// app.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"http://localhost:3000"}, // Frontend URL
-	// 	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	// 	AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-	// 	ExposeHeaders:    []string{"Content-Length"},
-	// 	AllowCredentials: true,
-	// }))
-
 	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Health check route
+	app.GET("/api/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "healthy",
+		})
+	})
 
 	api := app.Group("/api")
 
-	yearRoutes.InitYearRoutes(api, DB)
+	mottoRoutes.InitYearRoutes(api, DB)
 	catRoutes.InitCatRoutes(api, DB)
 	newsRoutes.InitNewsRoutes(api, DB)
+	contactRoutes.InitContactRoutes(api, DB)
+	imgRoutes.InitImageRoutes(api, DB)
 
 	if err := app.Run(viper.GetString("APP.host")); err != nil {
 		log.Fatalf("Failed running app: %v", err)

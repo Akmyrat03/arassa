@@ -15,3 +15,12 @@ type Translation struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
 }
+
+type NewsLang struct {
+	ID           int
+	CategoryName string
+	ImageURL     string
+	CreatedAt    time.Time
+	Title        string
+	Description  string
+}

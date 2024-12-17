@@ -1,0 +1,25 @@
+run:
+  timeout: 2m  # Stop linting if it takes longer than 2 minutes
+  skip-dirs:
+    - vendor  # Ignore vendor folder
+  skip-files:
+    - .*_test\.go  # Ignore test files
+
+linters:
+  enable:
+    - govet        # Finds potential bugs
+    - staticcheck  # Advanced static analysis
+    - gofmt        # Enforces Go formatting
+    - gosimple     # Simplifies Go code
+  disable:
+    - errcheck     # Disable checking for unhandled errors
+
+linters-settings:
+  gofmt:
+    simplify: true  # Simplify formatting issues
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - govet  # Ignore govet issues in test files

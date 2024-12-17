@@ -22,13 +22,13 @@ func (s *NewsService) Delete(id int) error {
 }
 
 func (s *NewsService) GetNewsByID(id int) (model.News, error) {
-	return s.repo.GetNewsByID(id)
+	return s.repo.GetByID(id)
 }
 
-func (s *NewsService) GetAll() ([]model.News, error) {
-	return s.repo.GetAll()
+func (s *NewsService) GetAllNewsByLangID(langID int) ([]model.NewsLang, error) {
+	return s.repo.GetAllNewsByLangID(langID)
 }
 
-func (s *NewsService) GetByCategoryID(id int) (model.News, error) {
-	return s.repo.GetByCategoryID(id)
+func (s *NewsService) GetAllNewsByLangAndCategory(langID, categoryID int) ([]model.NewsLang, error) {
+	return s.repo.GetAllNewsByLangAndCategory(langID, categoryID)
 }
