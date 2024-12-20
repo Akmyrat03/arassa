@@ -15,12 +15,8 @@ func InitNewsRoutes(router *gin.RouterGroup, DB *sqlx.DB) {
 	newsHand := handler.NewHandler(newsServ)
 
 	newsRoutes := router.Group("/news")
-	newsRoutes.POST("/add-news", newsHand.CreateNews)
-	newsRoutes.DELETE("/delete/:id", newsHand.DeleteNews)
-	newsRoutes.GET("/tkm", newsHand.GetAllNewsTKM)
-	newsRoutes.GET("/eng", newsHand.GetAllNewsENG)
-	newsRoutes.GET("/rus", newsHand.GetAllNewsRUS)
+	newsRoutes.POST("/add-news", newsHand.CreateNews())
+	newsRoutes.DELETE("/delete/:id", newsHand.DeleteNews())
+	newsRoutes.GET("/all", newsHand.GetAllNews)
 	newsRoutes.GET("/category", newsHand.GetAllNewsByLangAndCategory)
-	// newsRoutes.GET("/all", newsHand.GetAllNews)
-	// newsRoutes.GET("/all/:id", newsHand.GetNewsByCategoryID)
 }

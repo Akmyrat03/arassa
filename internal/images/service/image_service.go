@@ -16,3 +16,15 @@ func NewImageService(repo *repository.ImageRepository) *ImageService {
 func (s *ImageService) Create(title model.Title) (int, error) {
 	return s.repo.Create(title)
 }
+
+func (s *ImageService) Delete(id int) error {
+	return s.repo.Delete(id)
+}
+
+func (s *ImageService) GetImageByTitleID(id int) ([]string, error) {
+	return s.repo.GetImagePathsByTitleID(id)
+}
+
+func (s *ImageService) GetAll(langID int) ([]model.Image, error) {
+	return s.repo.GetAllImages(langID)
+}

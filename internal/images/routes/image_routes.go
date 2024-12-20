@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"arassachylyk/internal"
 	"arassachylyk/internal/images/handler"
 	"arassachylyk/internal/images/repository"
 	"arassachylyk/internal/images/service"
@@ -15,6 +16,11 @@ func InitImageRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	imgHandler := handler.NewImageHandler(imgService)
 
 	imgRoutes := router.Group("/images")
+	imgRoutes.Use(internal.AuthMiddleware())
+	{
+		imgRoutes.POST("/add", imgHandler.CreateImages())
+		imgRoutes.DELETE("/delete/:id", imgHandler.DeleteImages())
+	}
+	router.GET("/images/all", imgHandler.GetAllImages)
 
-	imgRoutes.POST("/add", imgHandler.CreateImages)
 }

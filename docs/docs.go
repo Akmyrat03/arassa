@@ -15,9 +15,71 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/admin/login": {
+            "post": {
+                "description": "Login by providing username and password as form data to get a JWT token for authentication.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Login"
+                ],
+                "summary": "Login and get JWT token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Password",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful, returns admin username and JWT token",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Missing or invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid username or password",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/categories/add": {
             "post": {
-                "description": "Create a new category with translations for Turkmen, English, and Russian",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new category by providing its translations in multiple languages (requires a valid JWT token in the Authorization header)",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -31,21 +93,21 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Category name in Turkmen",
+                        "description": "Category in Turkmen",
                         "name": "category_tkm",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Category name in English",
+                        "description": "Category in English",
                         "name": "category_eng",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Category name in Russian",
+                        "description": "Category in Russian",
                         "name": "category_rus",
                         "in": "formData",
                         "required": true
@@ -55,22 +117,63 @@ const docTemplate = `{
                     "200": {
                         "description": "Category created successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "400": {
                         "description": "Invalid input",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/all": {
+            "get": {
+                "description": "Retrieves all categories by language ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Get all categories by langID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Language ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of categories",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
                         }
                     }
                 }
@@ -78,7 +181,18 @@ const docTemplate = `{
         },
         "/categories/delete/{id}": {
             "delete": {
-                "description": "Deletes a category by its ID",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a category by ID (requires valid JWT token in the Authorization header)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "Categories"
                 ],
@@ -100,100 +214,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid type id",
+                        "description": "Invalid category ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Could not delete category",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/categories/eng": {
-            "get": {
-                "description": "Retrieves all categories available in the English language.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Get all categories in English language",
-                "responses": {
-                    "200": {
-                        "description": "List of categories",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request ",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/categories/rus": {
-            "get": {
-                "description": "Retrieves all categories available in the Russian language.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Get all categories in Russian language",
-                "responses": {
-                    "200": {
-                        "description": "List of categories",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request ",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/categories/tkm": {
-            "get": {
-                "description": "Retrieves all categories available in the Turkmen language.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Get all categories in Turkmen language",
-                "responses": {
-                    "200": {
-                        "description": "List of categories",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad request ",
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -268,7 +301,12 @@ const docTemplate = `{
         },
         "/images/add": {
             "post": {
-                "description": "Upload images to the server and save their paths in the database.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload multiple images with associated titles in different languages. Requires a valid JWT token in the Authorization header.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -278,11 +316,32 @@ const docTemplate = `{
                 "tags": [
                     "Images"
                 ],
-                "summary": "Upload multiple images",
+                "summary": "Upload multiple images and create a title with translations",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Title in Turkmen",
+                        "name": "title_tkm",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title in English",
+                        "name": "title_eng",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title in Russian",
+                        "name": "title_rus",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "file",
-                        "description": "Upload multiple images",
+                        "description": "Images to upload",
                         "name": "images",
                         "in": "formData",
                         "required": true
@@ -290,19 +349,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully added images",
+                        "description": "Successfully added title and images",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "400": {
-                        "description": "No images uploaded",
+                        "description": "Invalid input or file size exceeds limit",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Failed to save images to database",
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -310,9 +375,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/images/delete/{id}": {
-            "delete": {
-                "description": "Delete an image from the server and remove its record from the database.",
+        "/images/all": {
+            "get": {
+                "description": "Retrieve a list of images filtered by language using the lang_id query parameter",
                 "consumes": [
                     "application/json"
                 ],
@@ -322,11 +387,60 @@ const docTemplate = `{
                 "tags": [
                     "Images"
                 ],
-                "summary": "Delete an image",
+                "summary": "Get images by language",
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Image ID",
+                        "description": "Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)",
+                        "name": "lang_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved images",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid lang_id",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/images/delete/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a title and its associated images by ID. Requires a valid JWT token in the Authorization header.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Images"
+                ],
+                "summary": "Delete a title and its associated images",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Title ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -334,19 +448,25 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted image",
+                        "description": "Successfully deleted title and its images",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "400": {
-                        "description": "Invalid ID",
+                        "description": "Invalid title ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Can't delete image",
+                        "description": "Internal server error",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -356,7 +476,12 @@ const docTemplate = `{
         },
         "/motto/add": {
             "post": {
-                "description": "Adds a new motto with translations and an uploaded image.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a new motto with translations in three languages (Turkmen, English, Russian) and an image upload. Requires a valid Bearer token.",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -391,7 +516,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "file",
-                        "description": "Motto image file",
+                        "description": "Motto image",
                         "name": "image",
                         "in": "formData",
                         "required": true
@@ -399,19 +524,82 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully created motto",
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/motto/all": {
+            "get": {
+                "description": "Retrieves all mottos with translations filtered by language ID. Requires a valid Bearer token.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Motto"
+                ],
+                "summary": "Get all mottos",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Language ID",
+                        "name": "lang_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MottoResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid language ID format",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
-                    "400": {
-                        "description": "Bad request error message",
+                    "404": {
+                        "description": "No mottos found",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error message",
+                        "description": "Cannot retrieve mottos",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -421,7 +609,12 @@ const docTemplate = `{
         },
         "/motto/delete/{id}": {
             "delete": {
-                "description": "Deletes a motto by ID and removes the associated image file if it exists.",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a motto by its ID. Requires a valid Bearer token.",
                 "consumes": [
                     "application/json"
                 ],
@@ -449,19 +642,19 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad request",
+                        "description": "Invalid ID format",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Motto not found",
+                        "description": "Cannot get motto by ID",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Cannot delete year",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -471,6 +664,11 @@ const docTemplate = `{
         },
         "/news/add-news": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Creates a news item with category, image, and translations in Turkmen, English, and Russian",
                 "consumes": [
                     "multipart/form-data"
@@ -562,6 +760,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/news/all": {
+            "get": {
+                "description": "Retrieves all news articles available in a specific language by language ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "News"
+                ],
+                "summary": "Get all news in a specific language",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Language ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of news articles",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/news/category": {
             "get": {
                 "description": "Fetch all news based on language ID and category ID",
@@ -618,6 +860,11 @@ const docTemplate = `{
         },
         "/news/delete/{id}": {
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Deletes a news by its ID",
                 "tags": [
                     "News"
@@ -654,9 +901,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/news/eng": {
+        "/videos/all": {
             "get": {
-                "description": "Retrieves a list of all news with titles, descriptions, categories, and images in Turkmen language.",
+                "description": "Retrieve a list of videos filtered by language using the lang_id query parameter",
                 "consumes": [
                     "application/json"
                 ],
@@ -664,12 +911,27 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "News"
+                    "Videos"
                 ],
-                "summary": "Get all news in English language",
+                "summary": "Get videos by language",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)",
+                        "name": "lang_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfully get all news in English language",
+                        "description": "Successfully retrieved videos",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid lang_id",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -683,9 +945,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/news/rus": {
-            "get": {
-                "description": "Retrieves a list of all news with titles, descriptions, categories, and images in Turkmen language.",
+        "/videos/delete/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a video by ID and removes associated files from the file system and database",
                 "consumes": [
                     "application/json"
                 ],
@@ -693,18 +960,33 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "News"
+                    "Videos"
                 ],
-                "summary": "Get all news in Russian language",
+                "summary": "Delete video and associated files",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Video Title ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfully get all news in Russian language",
+                        "description": "Videos deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Failed to delete files",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -712,28 +994,69 @@ const docTemplate = `{
                 }
             }
         },
-        "/news/tkm": {
-            "get": {
-                "description": "Retrieves a list of all news with titles, descriptions, categories, and images in Turkmen language.",
+        "/videos/upload": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload multiple videos with their title translations in different languages (e.g., Turkmen, English, Russian).",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "News"
+                    "Videos"
                 ],
-                "summary": "Get all news in Turkmen language",
+                "summary": "Upload videos with title translations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Title in Turkmen",
+                        "name": "title_tkm",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title in English",
+                        "name": "title_eng",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title in Russian",
+                        "name": "title_rus",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Video files",
+                        "name": "videos",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Successfully get all news in Turkmen language",
+                        "description": "Successfully uploaded videos",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid form data or file size exceeds the limit",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Failed to upload video",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -743,6 +1066,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.MottoResponse": {
+            "type": "object",
+            "properties": {
+                "image_url": {
+                    "type": "string"
+                },
+                "lang_id": {
+                    "type": "integer"
+                },
+                "motto_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "response.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -750,6 +1090,13 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

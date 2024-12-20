@@ -1,5 +1,16 @@
 basePath: /api
 definitions:
+  model.MottoResponse:
+    properties:
+      image_url:
+        type: string
+      lang_id:
+        type: integer
+      motto_id:
+        type: integer
+      name:
+        type: string
+    type: object
   response.ErrorResponse:
     properties:
       message:
@@ -12,24 +23,63 @@ info:
   title: Arassachylyk project
   version: "1.0"
 paths:
+  /admin/login:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Login by providing username and password as form data to get a
+        JWT token for authentication.
+      parameters:
+      - description: Username
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful, returns admin username and JWT token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Missing or invalid input
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid username or password
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Login and get JWT token
+      tags:
+      - Login
   /categories/add:
     post:
       consumes:
       - multipart/form-data
-      description: Create a new category with translations for Turkmen, English, and
-        Russian
+      description: Create a new category by providing its translations in multiple
+        languages (requires a valid JWT token in the Authorization header)
       parameters:
-      - description: Category name in Turkmen
+      - description: Category in Turkmen
         in: formData
         name: category_tkm
         required: true
         type: string
-      - description: Category name in English
+      - description: Category in English
         in: formData
         name: category_eng
         required: true
         type: string
-      - description: Category name in Russian
+      - description: Category in Russian
         in: formData
         name: category_rus
         required: true
@@ -40,101 +90,83 @@ paths:
         "200":
           description: Category created successfully
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.ErrorResponse'
         "400":
           description: Invalid input
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid or expired token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create a new category
+      tags:
+      - Categories
+  /categories/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories by language ID
+      parameters:
+      - description: Language ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all categories by langID
       tags:
       - Categories
   /categories/delete/{id}:
     delete:
-      description: Deletes a category by its ID
+      consumes:
+      - application/json
+      description: Delete a category by ID (requires valid JWT token in the Authorization
+        header)
       parameters:
       - description: Category ID
         in: path
         name: id
         required: true
         type: integer
+      produces:
+      - application/json
       responses:
         "200":
           description: Successfully deleted category
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Invalid type id
+          description: Invalid category ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid or expired token
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Could not delete category
+          description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete a category
-      tags:
-      - Categories
-  /categories/eng:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves all categories available in the English language.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of categories
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: 'Bad request '
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all categories in English language
-      tags:
-      - Categories
-  /categories/rus:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves all categories available in the Russian language.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of categories
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: 'Bad request '
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all categories in Russian language
-      tags:
-      - Categories
-  /categories/tkm:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves all categories available in the Turkmen language.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of categories
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: 'Bad request '
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all categories in Turkmen language
       tags:
       - Categories
   /contact/message:
@@ -185,9 +217,25 @@ paths:
     post:
       consumes:
       - multipart/form-data
-      description: Upload images to the server and save their paths in the database.
+      description: Upload multiple images with associated titles in different languages.
+        Requires a valid JWT token in the Authorization header.
       parameters:
-      - description: Upload multiple images
+      - description: Title in Turkmen
+        in: formData
+        name: title_tkm
+        required: true
+        type: string
+      - description: Title in English
+        in: formData
+        name: title_eng
+        required: true
+        type: string
+      - description: Title in Russian
+        in: formData
+        name: title_rus
+        required: true
+        type: string
+      - description: Images to upload
         in: formData
         name: images
         required: true
@@ -196,28 +244,64 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully added images
+          description: Successfully added title and images
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: No images uploaded
+          description: Invalid input or file size exceeds limit
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid or expired token
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Failed to save images to database
+          description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Upload multiple images
+      security:
+      - BearerAuth: []
+      summary: Upload multiple images and create a title with translations
+      tags:
+      - Images
+  /images/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of images filtered by language using the lang_id
+        query parameter
+      parameters:
+      - description: Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)
+        in: query
+        name: lang_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved images
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid lang_id
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get images by language
       tags:
       - Images
   /images/delete/{id}:
     delete:
       consumes:
       - application/json
-      description: Delete an image from the server and remove its record from the
-        database.
+      description: Delete a title and its associated images by ID. Requires a valid
+        JWT token in the Authorization header.
       parameters:
-      - description: Image ID
+      - description: Title ID
         in: path
         name: id
         required: true
@@ -226,25 +310,32 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully deleted image
+          description: Successfully deleted title and its images
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Invalid ID
+          description: Invalid title ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid or expired token
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Can't delete image
+          description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Delete an image
+      security:
+      - BearerAuth: []
+      summary: Delete a title and its associated images
       tags:
       - Images
   /motto/add:
     post:
       consumes:
       - multipart/form-data
-      description: Adds a new motto with translations and an uploaded image.
+      description: Adds a new motto with translations in three languages (Turkmen,
+        English, Russian) and an image upload. Requires a valid Bearer token.
       parameters:
       - description: Motto name in Turkmen
         in: formData
@@ -261,7 +352,7 @@ paths:
         name: name_rus
         required: true
         type: string
-      - description: Motto image file
+      - description: Motto image
         in: formData
         name: image
         required: true
@@ -270,26 +361,71 @@ paths:
       - application/json
       responses:
         "200":
-          description: Successfully created motto
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new motto
+      tags:
+      - Motto
+  /motto/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all mottos with translations filtered by language ID.
+        Requires a valid Bearer token.
+      parameters:
+      - description: Language ID
+        in: query
+        name: lang_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.MottoResponse'
+            type: array
+        "400":
+          description: Invalid language ID format
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: Bad request error message
+        "404":
+          description: No mottos found
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Internal server error message
+          description: Cannot retrieve mottos
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Add a new motto
+      summary: Get all mottos
       tags:
       - Motto
   /motto/delete/{id}:
     delete:
       consumes:
       - application/json
-      description: Deletes a motto by ID and removes the associated image file if
-        it exists.
+      description: Deletes a motto by its ID. Requires a valid Bearer token.
       parameters:
       - description: Motto ID
         in: path
@@ -304,17 +440,19 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Bad request
+          description: Invalid ID format
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "404":
-          description: Motto not found
+          description: Cannot get motto by ID
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Cannot delete year
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete a motto
       tags:
       - Motto
@@ -380,7 +518,39 @@ paths:
           description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Create a news item
+      tags:
+      - News
+  /news/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all news articles available in a specific language by
+        language ID.
+      parameters:
+      - description: Language ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of news articles
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all news in a specific language
       tags:
       - News
   /news/category:
@@ -442,67 +612,123 @@ paths:
           description: Could not delete news
           schema:
             $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Delete a news
       tags:
       - News
-  /news/eng:
+  /videos/all:
     get:
       consumes:
       - application/json
-      description: Retrieves a list of all news with titles, descriptions, categories,
-        and images in Turkmen language.
+      description: Retrieve a list of videos filtered by language using the lang_id
+        query parameter
+      parameters:
+      - description: Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)
+        in: query
+        name: lang_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully get all news in English language
+          description: Successfully retrieved videos
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid lang_id
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
           description: Internal server error
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all news in English language
+      summary: Get videos by language
       tags:
-      - News
-  /news/rus:
-    get:
+      - Videos
+  /videos/delete/{id}:
+    delete:
       consumes:
       - application/json
-      description: Retrieves a list of all news with titles, descriptions, categories,
-        and images in Turkmen language.
+      description: Deletes a video by ID and removes associated files from the file
+        system and database
+      parameters:
+      - description: Video Title ID
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully get all news in Russian language
+          description: Videos deleted successfully
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid ID
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Failed to delete files
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all news in Russian language
+      security:
+      - BearerAuth: []
+      summary: Delete video and associated files
       tags:
-      - News
-  /news/tkm:
-    get:
+      - Videos
+  /videos/upload:
+    post:
       consumes:
-      - application/json
-      description: Retrieves a list of all news with titles, descriptions, categories,
-        and images in Turkmen language.
+      - multipart/form-data
+      description: Upload multiple videos with their title translations in different
+        languages (e.g., Turkmen, English, Russian).
+      parameters:
+      - description: Title in Turkmen
+        in: formData
+        name: title_tkm
+        required: true
+        type: string
+      - description: Title in English
+        in: formData
+        name: title_eng
+        required: true
+        type: string
+      - description: Title in Russian
+        in: formData
+        name: title_rus
+        required: true
+        type: string
+      - description: Video files
+        in: formData
+        name: videos
+        required: true
+        type: file
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully get all news in Turkmen language
+          description: Successfully uploaded videos
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid form data or file size exceeds the limit
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Internal server error
+          description: Failed to upload video
           schema:
             $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all news in Turkmen language
+      security:
+      - BearerAuth: []
+      summary: Upload videos with title translations
       tags:
-      - News
+      - Videos
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -17,10 +17,6 @@ func (s *CategoryService) Create(category model.CategoryReq) (int, error) {
 	return s.repo.Create(category)
 }
 
-// func (s *CategoryService) Update(id int, category model.Category) error {
-// 	return s.repo.Update(id, category)
-// }
-
 func (s *CategoryService) Delete(id int) error {
 	return s.repo.Delete(id)
 }

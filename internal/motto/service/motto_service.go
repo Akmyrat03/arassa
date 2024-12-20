@@ -24,3 +24,7 @@ func (s *MottoService) Delete(id int) error {
 func (s *MottoService) GetByID(id int) (model.Motto, error) {
 	return s.repo.GetByID(id)
 }
+
+func (s *MottoService) GetAllMottos(langID int) ([]model.MottoResponse, error) {
+	return s.repo.GetAllMottos(langID)
+}

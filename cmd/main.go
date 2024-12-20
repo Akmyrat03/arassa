@@ -2,11 +2,13 @@ package main
 
 import (
 	_ "arassachylyk/docs"
+	adminRoutes "arassachylyk/internal/admin/routes"
 	catRoutes "arassachylyk/internal/categories/routes"
 	contactRoutes "arassachylyk/internal/contact/routes"
 	imgRoutes "arassachylyk/internal/images/routes"
 	mottoRoutes "arassachylyk/internal/motto/routes"
 	newsRoutes "arassachylyk/internal/news/routes"
+	videoRoutes "arassachylyk/internal/videos/routes"
 
 	"arassachylyk/pkg/database"
 	"log"
@@ -24,6 +26,9 @@ import (
 // @description Arassachylyk project
 // @host localhost:8000
 // @BasePath /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	logrus.SetFormatter(new(logrus.JSONFormatter))
@@ -62,6 +67,8 @@ func main() {
 	newsRoutes.InitNewsRoutes(api, DB)
 	contactRoutes.InitContactRoutes(api, DB)
 	imgRoutes.InitImageRoutes(api, DB)
+	videoRoutes.InitVideoRoutes(api, DB)
+	adminRoutes.InitAdminRoutes(api, DB)
 
 	if err := app.Run(viper.GetString("APP.host")); err != nil {
 		log.Fatalf("Failed running app: %v", err)

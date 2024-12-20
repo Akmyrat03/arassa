@@ -58,7 +58,7 @@ func (s *ContactService) SendMessage(ctx context.Context, message model.ContactM
 	userTo := []string{message.Email} // User's email
 	userSubject := "Mesajınız Alındı"
 	userBody := "Salam " + message.Name + ",\n\n" +
-		"Hatyňyzy aldyk Ine, iberen hatyňyz:\n" +
+		"Hatyňyzy aldyk. Ine, iberen hatyňyz:\n" +
 		message.Message + "\n\n" +
 		"Sag boluň, \nArassachylyk topary"
 	userMessage := "From: " + smtpEmail + "\n" +

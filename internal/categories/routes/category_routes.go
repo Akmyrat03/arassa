@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"arassachylyk/internal"
 	"arassachylyk/internal/categories/handler"
 	"arassachylyk/internal/categories/repository"
 	"arassachylyk/internal/categories/service"
@@ -15,11 +16,11 @@ func InitCatRoutes(router *gin.RouterGroup, DB *sqlx.DB) {
 	catHand := handler.NewCategoryHandler(catServ)
 
 	catRoutes := router.Group("/categories")
-	catRoutes.POST("/add", catHand.CreateCategory)
-	catRoutes.DELETE("/delete/:id", catHand.DeleteCategory)
-	// catRoutes.PUT("/update/:id", catHand.UpdateCategory)
-	catRoutes.GET("/tkm", catHand.GetAllCategoriesTKM)
-	catRoutes.GET("/eng", catHand.GetAllCategoriesENG)
-	catRoutes.GET("/rus", catHand.GetAllCategoriesRUS)
+	catRoutes.Use(internal.AuthMiddleware())
+	{
+		catRoutes.POST("/add", catHand.CreateCategory())
+		catRoutes.DELETE("/delete/:id", catHand.DeleteCategory())
+	}
+	router.GET("/categories/all", catHand.GetAllCategories)
 
 }

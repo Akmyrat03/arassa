@@ -87,3 +87,27 @@ func (r *MottoRepository) GetByID(id int) (model.Motto, error) {
 	motto.Translations = translations
 	return motto, nil
 }
+
+func (r *MottoRepository) GetAllMottos(langID int) ([]model.MottoResponse, error) {
+	var mottos []model.MottoResponse
+	query := `
+		SELECT 
+			m.id,
+			mt.lang_id,
+			mt.name,
+			m.image_url
+		FROM 
+			motto AS m
+		LEFT JOIN 
+			motto_translate AS mt ON m.id = mt.motto_id
+		WHERE mt.lang_id = $1
+		ORDER BY 
+			m.id ASC, mt.lang_id ASC
+	`
+	err := r.DB.Select(&mottos, query, langID)
+	if err != nil {
+		return nil, err
+	}
+
+	return mottos, nil
+}

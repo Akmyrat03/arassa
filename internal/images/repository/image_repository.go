@@ -55,3 +55,57 @@ func (r *ImageRepository) Create(title model.Title) (int, error) {
 	return titleID, nil
 
 }
+
+func (r *ImageRepository) Delete(id int) error {
+	query := `DELETE FROM title WHERE id=$1`
+	_, err := r.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ImageRepository) GetImagePathsByTitleID(id int) ([]string, error) {
+	var imagePaths []string
+	query := `SELECT image_path FROM images WHERE title_id=$1`
+	rows, err := r.DB.Query(query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var imagePath string
+		if err := rows.Scan(&imagePath); err != nil {
+			return nil, err
+		}
+		imagePaths = append(imagePaths, imagePath)
+	}
+	return imagePaths, nil
+}
+
+func (r *ImageRepository) GetAllImages(langID int) ([]model.Image, error) {
+	var images []model.Image
+	query := `
+		SELECT 
+			t.id AS title_id,
+			tt.lang_id,
+			tt.title,
+			i.image_path
+		FROM 
+			title AS t
+		LEFT JOIN 
+			title_translate AS tt ON t.id = tt.title_id
+		LEFT JOIN 
+			images AS i ON t.id = i.title_id
+		WHERE tt.lang_id=$1	
+		ORDER BY 
+			t.id ASC, tt.lang_id ASC
+	`
+	err := r.DB.Select(&images, query, langID)
+	if err != nil {
+		return nil, err
+	}
+
+	return images, nil
+}

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"arassachylyk/internal"
 	"arassachylyk/internal/motto/handler"
 	"arassachylyk/internal/motto/repository"
 	"arassachylyk/internal/motto/service"
@@ -15,8 +16,11 @@ func InitYearRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	mottoHandler := handler.NewYearHandler(mottoService)
 
 	mottoRoutes := router.Group("/motto")
-
-	mottoRoutes.POST("/add", mottoHandler.AddMotto)
-	mottoRoutes.DELETE("/delete/:id", mottoHandler.DeleteMotto)
+	mottoRoutes.Use(internal.AuthMiddleware())
+	{
+		mottoRoutes.POST("/add", mottoHandler.AddMotto())
+		mottoRoutes.DELETE("/delete/:id", mottoHandler.DeleteMotto())
+	}
+	router.GET("/motto/all", mottoHandler.GetAllMottos())
 
 }
