@@ -9,8 +9,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func InitAdminRoutes(router *gin.RouterGroup, DB *sqlx.DB) {
-	adminRepo := repository.NewAdminRepository(DB)
+func InitAdminRoutes(router *gin.RouterGroup, db *sqlx.DB) {
+	adminRepo := repository.NewAdminRepository(db)
 	adminServ := service.NewAdminService(adminRepo)
 	adminMidd := middleware.NewAdminMiddleware(adminRepo, adminServ)
 

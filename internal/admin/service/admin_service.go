@@ -19,7 +19,7 @@ var (
 type tokenClaims struct {
 	jwt.StandardClaims
 
-	Admin_id int    `json:"admin_id"`
+	AdminID  int    `json:"admin_id"`
 	Username string `json:"username"`
 }
 
@@ -51,7 +51,7 @@ func GeneratePasswordHash(password string) string {
 func (s *AdminService) GenerateToken(username, password string) (string, error) {
 	admin, err := s.repo.GetAdmin(username, GeneratePasswordHash(password))
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &tokenClaims{
@@ -66,7 +66,7 @@ func (s *AdminService) GenerateToken(username, password string) (string, error) 
 	return token.SignedString(signingKey)
 }
 
-// Validate token
+// Validate token.
 func (s *AdminService) ValidateToken(tokenString string) (string, error) {
 	claims := &tokenClaims{}
 

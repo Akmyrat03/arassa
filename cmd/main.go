@@ -13,6 +13,7 @@ import (
 	"arassachylyk/pkg/database"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -60,9 +61,19 @@ func main() {
 		})
 	})
 
-	api := app.Group("/api")
+	corsConfig := cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "https://yourfrontend.com"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           24 * 3600,
+	})
 
-	mottoRoutes.InitYearRoutes(api, DB)
+	app.Use(corsConfig)
+
+	api := app.Group("/api")
+	mottoRoutes.InitMottoRoutes(api, DB)
 	catRoutes.InitCatRoutes(api, DB)
 	newsRoutes.InitNewsRoutes(api, DB)
 	contactRoutes.InitContactRoutes(api, DB)
@@ -78,6 +89,7 @@ func main() {
 func InitConfig() error {
 	viper.AddConfigPath("config")
 	viper.SetConfigName("config")
+
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}

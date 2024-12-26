@@ -18,9 +18,10 @@ func InitImageRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	imgRoutes := router.Group("/images")
 	imgRoutes.Use(internal.AuthMiddleware())
 	{
-		imgRoutes.POST("/add", imgHandler.CreateImages())
-		imgRoutes.DELETE("/delete/:id", imgHandler.DeleteImages())
+		imgRoutes.POST("/", imgHandler.CreateImages())
+		imgRoutes.DELETE("/:id", imgHandler.DeleteImages())
 	}
 	router.GET("/images/all", imgHandler.GetAllImages)
+	router.GET("/images", imgHandler.GetPaginatedImages)
 
 }

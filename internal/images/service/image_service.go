@@ -28,3 +28,7 @@ func (s *ImageService) GetImageByTitleID(id int) ([]string, error) {
 func (s *ImageService) GetAll(langID int) ([]model.Image, error) {
 	return s.repo.GetAllImages(langID)
 }
+
+func (s *ImageService) GetPaginatedImg(langID, page, limit int) ([]model.Image, error) {
+	return s.repo.GetPaginatedImages(langID, page, limit)
+}

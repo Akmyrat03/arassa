@@ -3,6 +3,7 @@ package handler
 import (
 	"arassachylyk/internal/videos/model"
 	"arassachylyk/internal/videos/service"
+	"arassachylyk/pkg/errlst"
 	handler "arassachylyk/pkg/response"
 	"net/http"
 	"os"
@@ -26,18 +27,17 @@ func NewVideoHandler(service *service.VideoService) *VideoHandler {
 // @Tags         Videos
 // @Accept       multipart/form-data
 // @Produce      json
-// @Param        title_tkm  formData  string  true   "Title in Turkmen"
-// @Param        title_eng  formData  string  true   "Title in English"
-// @Param        title_rus  formData  string  true   "Title in Russian"
+// @Param        titleTurkmen  formData  string  true   "Title in Turkmen"
+// @Param        titleEnglish  formData  string  true   "Title in English"
+// @Param        titleRussian  formData  string  true   "Title in Russian"
 // @Param        videos     formData  file    true   "Video files"
 // @Success      200        {object} response.ErrorResponse "Successfully uploaded videos"
 // @Failure      400        {object} response.ErrorResponse "Invalid form data or file size exceeds the limit"
 // @Failure      500        {object} response.ErrorResponse "Failed to upload video"
-// @Router       /videos/upload [post]
-// @security     BearerAuth
+// @Router       /videos [post]
+// @security     BearerAuth.
 func (h *VideoHandler) UploadVideos() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		const maxUploadSize = 50 * 1024 * 1024 // 50MB limit for video files
 
 		if c.Request.ContentLength > maxUploadSize {
@@ -46,9 +46,9 @@ func (h *VideoHandler) UploadVideos() gin.HandlerFunc {
 		}
 
 		// Extract translations from form data
-		titleTkm := c.PostForm("title_tkm")
-		titleEng := c.PostForm("title_eng")
-		titleRus := c.PostForm("title_rus")
+		titleTkm := c.PostForm("titleTurkmen")
+		titleEng := c.PostForm("titleEnglish")
+		titleRus := c.PostForm("titleRussian")
 
 		translations := []model.Translation{
 			{LangID: 1, Title: titleTkm},
@@ -104,7 +104,6 @@ func (h *VideoHandler) UploadVideos() gin.HandlerFunc {
 			"id":      id,
 			"message": "Successfully uploaded videos",
 		})
-
 	}
 }
 
@@ -118,13 +117,12 @@ func (h *VideoHandler) UploadVideos() gin.HandlerFunc {
 // @Success      200  {object}  response.ErrorResponse "Videos deleted successfully"
 // @Failure      400  {object}  response.ErrorResponse "Invalid ID"
 // @Failure      500  {object}  response.ErrorResponse "Failed to delete files"
-// @Router       /videos/delete/{id} [delete]
-// @security BearerAuth
+// @Router       /videos/{id} [delete]
+// @security BearerAuth.
 func (h *VideoHandler) DeleteVideos() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
+		if err != nil || id <= 0 {
 			handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid ID format")
 			return
 		}
@@ -155,7 +153,6 @@ func (h *VideoHandler) DeleteVideos() gin.HandlerFunc {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Video deleted successfully",
 		})
-
 	}
 }
 
@@ -165,23 +162,45 @@ func (h *VideoHandler) DeleteVideos() gin.HandlerFunc {
 // @Tags Videos
 // @Accept json
 // @Produce json
-// @Param lang_id query int true "Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)"
+// @Param lang_id query int true "Language ID (1 for Turkmen, 2 for English, 3 for Russian)"
+// @Param page query int true "Page Number"
+// @Param limit query int true "Limit"
 // @Success 200 {object} response.ErrorResponse "Successfully retrieved videos"
-// @Failure 400 {object} response.ErrorResponse "Invalid lang_id"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /videos/all [get]
-func (h *VideoHandler) GetAllVideos(c *gin.Context) {
-	langID, err := strconv.Atoi(c.Query("lang_id"))
+// @Router /videos [get].
+func (h *VideoHandler) GetAllVideosWithPagination(c *gin.Context) {
+	langID, err := parseQuery(c, "lang_id", errlst.ErrInvalidLangID)
 	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid lang_id")
 		return
 	}
 
-	videos, err := h.service.GetAll(langID)
+	page, err := parseQuery(c, "page", errlst.ErrInvalidPage)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"videos": videos})
+	limit, err := parseQuery(c, "limit", errlst.ErrInvalidLimit)
+	if err != nil {
+		return
+	}
+
+	videos, err := h.service.GetAll(langID, page, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "Cant get all videos with pagination")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"videos": videos,
+	})
+}
+
+func parseQuery(c *gin.Context, param string, errMsg string) (int, error) {
+	value, err := strconv.Atoi(c.Query(param))
+	if err != nil || value <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, errMsg)
+		return 0, err
+	}
+	return value, nil
 }

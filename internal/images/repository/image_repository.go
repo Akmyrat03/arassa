@@ -2,6 +2,7 @@ package repository
 
 import (
 	"arassachylyk/internal/images/model"
+	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -11,8 +12,8 @@ type ImageRepository struct {
 	DB *sqlx.DB
 }
 
-func NewImageRepository(DB *sqlx.DB) *ImageRepository {
-	return &ImageRepository{DB: DB}
+func NewImageRepository(db *sqlx.DB) *ImageRepository {
+	return &ImageRepository{DB: db}
 }
 
 func (r *ImageRepository) Create(title model.Title) (int, error) {
@@ -25,7 +26,10 @@ func (r *ImageRepository) Create(title model.Title) (int, error) {
 	query := `INSERT INTO title DEFAULT VALUES RETURNING id`
 	err = tx.QueryRow(query).Scan(&titleID)
 	if err != nil {
-		tx.Rollback()
+		rollbackErr := tx.Rollback()
+		if rollbackErr != nil {
+			return 0, fmt.Errorf("rollback failed: %w, original error: %w", rollbackErr, err)
+		}
 		return 0, err
 	}
 
@@ -41,8 +45,10 @@ func (r *ImageRepository) Create(title model.Title) (int, error) {
 	for _, image := range title.Images {
 		_, err := tx.Exec(imageQuery, titleID, image)
 		if err != nil {
-			log.Println("Error inserting images: ", err)
-			tx.Rollback()
+			rollbackErr := tx.Rollback()
+			if rollbackErr != nil {
+				return 0, fmt.Errorf("rollback failed: %v, original error: %w", rollbackErr, err)
+			}
 			return 0, err
 		}
 	}
@@ -53,7 +59,6 @@ func (r *ImageRepository) Create(title model.Title) (int, error) {
 	}
 
 	return titleID, nil
-
 }
 
 func (r *ImageRepository) Delete(id int) error {
@@ -62,6 +67,7 @@ func (r *ImageRepository) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -72,6 +78,7 @@ func (r *ImageRepository) GetImagePathsByTitleID(id int) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -81,6 +88,7 @@ func (r *ImageRepository) GetImagePathsByTitleID(id int) ([]string, error) {
 		}
 		imagePaths = append(imagePaths, imagePath)
 	}
+
 	return imagePaths, nil
 }
 
@@ -103,6 +111,38 @@ func (r *ImageRepository) GetAllImages(langID int) ([]model.Image, error) {
 			t.id ASC, tt.lang_id ASC
 	`
 	err := r.DB.Select(&images, query, langID)
+	if err != nil {
+		return nil, err
+	}
+
+	return images, nil
+}
+
+func (r *ImageRepository) GetPaginatedImages(langID, page, limit int) ([]model.Image, error) {
+	var images []model.Image
+
+	offset := (page - 1) * limit
+
+	query := `
+		SELECT 
+			t.id AS title_id,
+			tt.lang_id,
+			tt.title,
+			i.image_path 
+		FROM 
+			title_translate AS tt 
+		INNER JOIN
+			title AS t ON tt.title_id = t.id 
+		INNER JOIN 
+			images AS i ON i.title_id=t.id
+		WHERE 
+			tt.lang_id = $1	
+		ORDER BY 
+			t.id ASC, tt.lang_id ASC
+		LIMIT $2 OFFSET $3	
+	`
+
+	err := r.DB.Select(&images, query, langID, limit, offset)
 	if err != nil {
 		return nil, err
 	}

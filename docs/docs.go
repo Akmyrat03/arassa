@@ -72,76 +72,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/categories/add": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Create a new category by providing its translations in multiple languages (requires a valid JWT token in the Authorization header)",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Categories"
-                ],
-                "summary": "Create a new category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Category in Turkmen",
-                        "name": "category_tkm",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Category in English",
-                        "name": "category_eng",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Category in Russian",
-                        "name": "category_rus",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Category created successfully",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Invalid or expired token",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/categories/all": {
+        "/categories": {
             "get": {
                 "description": "Retrieves all categories by language ID",
                 "consumes": [
@@ -177,9 +108,76 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new category by providing its translations in multiple languages (requires a valid JWT token in the Authorization header)",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Categories"
+                ],
+                "summary": "Create a new category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Category in Turkmen",
+                        "name": "categoryTurkmen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category in English",
+                        "name": "categoryEnglish",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Category in Russian",
+                        "name": "categoryRussian",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Category created successfully",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid or expired token",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
-        "/categories/delete/{id}": {
+        "/categories/{id}": {
             "delete": {
                 "security": [
                     {
@@ -234,7 +232,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/contact/message": {
+        "/contact": {
             "post": {
                 "description": "Send a message from a contact form",
                 "consumes": [
@@ -299,7 +297,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/images/add": {
+        "/images": {
             "post": {
                 "security": [
                     {
@@ -321,21 +319,21 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Title in Turkmen",
-                        "name": "title_tkm",
+                        "name": "titleTurkmen",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Title in English",
-                        "name": "title_eng",
+                        "name": "titleEnglish",
                         "in": "formData",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "Title in Russian",
-                        "name": "title_rus",
+                        "name": "titleRussian",
                         "in": "formData",
                         "required": true
                     },
@@ -419,7 +417,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/images/delete/{id}": {
+        "/images/{id}": {
             "delete": {
                 "security": [
                     {
@@ -474,87 +472,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/motto/add": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Adds a new motto with translations in three languages (Turkmen, English, Russian) and an image upload. Requires a valid Bearer token.",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Motto"
-                ],
-                "summary": "Add a new motto",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Motto name in Turkmen",
-                        "name": "name_tkm",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Motto name in English",
-                        "name": "name_eng",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Motto name in Russian",
-                        "name": "name_rus",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "Motto image",
-                        "name": "image",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/motto/all": {
+        "/motto": {
             "get": {
                 "description": "Retrieves all mottos with translations filtered by language ID. Requires a valid Bearer token.",
                 "consumes": [
@@ -605,9 +523,87 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Adds a new motto with translations in three languages (Turkmen, English, Russian) and an image upload. Requires a valid Bearer token.",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Motto"
+                ],
+                "summary": "Add a new motto",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Motto name in Turkmen",
+                        "name": "nameTurkmen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Motto name in English",
+                        "name": "nameEnglish",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Motto name in Russian",
+                        "name": "nameRussian",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Motto image",
+                        "name": "image",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
             }
         },
-        "/motto/delete/{id}": {
+        "/motto/{id}": {
             "delete": {
                 "security": [
                     {
@@ -662,7 +658,73 @@ const docTemplate = `{
                 }
             }
         },
-        "/news/add-news": {
+        "/news": {
+            "get": {
+                "description": "Fetch all news based on language ID and category ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "News"
+                ],
+                "summary": "Get all news by language and category",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Category ID",
+                        "name": "category_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Language ID",
+                        "name": "lang_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of news",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -762,7 +824,7 @@ const docTemplate = `{
         },
         "/news/all": {
             "get": {
-                "description": "Retrieves all news articles available in a specific language by language ID.",
+                "description": "Retrieves all news articles available in a specific language by language ID with pagination.",
                 "consumes": [
                     "application/json"
                 ],
@@ -777,7 +839,21 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Language ID",
-                        "name": "id",
+                        "name": "lang_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
                         "in": "query",
                         "required": true
                     }
@@ -790,7 +866,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid ID",
+                        "description": "Invalid Language ID or Pagination Parameters",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -804,61 +880,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/news/category": {
-            "get": {
-                "description": "Fetch all news based on language ID and category ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "News"
-                ],
-                "summary": "Get all news by language and category",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Language ID (e.g., 1 for Turkmen, 2 for Russian)",
-                        "name": "lang_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Category ID",
-                        "name": "category_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of news",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid input",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/news/delete/{id}": {
+        "/news/{id}": {
             "delete": {
                 "security": [
                     {
@@ -901,7 +923,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/videos/all": {
+        "/videos": {
             "get": {
                 "description": "Retrieve a list of videos filtered by language using the lang_id query parameter",
                 "consumes": [
@@ -917,8 +939,22 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)",
+                        "description": "Language ID (1 for Turkmen, 2 for English, 3 for Russian)",
                         "name": "lang_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
                         "in": "query",
                         "required": true
                     }
@@ -931,7 +967,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid lang_id",
+                        "description": "Invalid request",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }
@@ -943,9 +979,77 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload multiple videos with their title translations in different languages (e.g., Turkmen, English, Russian).",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Upload videos with title translations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Title in Turkmen",
+                        "name": "titleTurkmen",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title in English",
+                        "name": "titleEnglish",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Title in Russian",
+                        "name": "titleRussian",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Video files",
+                        "name": "videos",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully uploaded videos",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid form data or file size exceeds the limit",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to upload video",
+                        "schema": {
+                            "$ref": "#/definitions/response.ErrorResponse"
+                        }
+                    }
+                }
             }
         },
-        "/videos/delete/{id}": {
+        "/videos/{id}": {
             "delete": {
                 "security": [
                     {
@@ -987,76 +1091,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Failed to delete files",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/videos/upload": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Upload multiple videos with their title translations in different languages (e.g., Turkmen, English, Russian).",
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Videos"
-                ],
-                "summary": "Upload videos with title translations",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Title in Turkmen",
-                        "name": "title_tkm",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Title in English",
-                        "name": "title_eng",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Title in Russian",
-                        "name": "title_rus",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "Video files",
-                        "name": "videos",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully uploaded videos",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid form data or file size exceeds the limit",
-                        "schema": {
-                            "$ref": "#/definitions/response.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Failed to upload video",
                         "schema": {
                             "$ref": "#/definitions/response.ErrorResponse"
                         }

@@ -25,10 +25,10 @@ func (s *NewsService) GetNewsByID(id int) (model.News, error) {
 	return s.repo.GetByID(id)
 }
 
-func (s *NewsService) GetAllNewsByLangID(langID int) ([]model.NewsLang, error) {
-	return s.repo.GetAllNewsByLangID(langID)
+func (s *NewsService) GetAllNewsByLangID(langID, page, limit int) ([]model.NewsLang, error) {
+	return s.repo.GetAllNewsByLangID(langID, page, limit)
 }
 
-func (s *NewsService) GetAllNewsByLangAndCategory(langID, categoryID int) ([]model.NewsLang, error) {
-	return s.repo.GetAllNewsByLangAndCategory(langID, categoryID)
+func (s *NewsService) GetAllNewsByLangAndCategory(langID, categoryID, limit, page int) ([]model.NewsLang, error) {
+	return s.repo.GetAllNewsByLangAndCategory(langID, categoryID, page, limit)
 }

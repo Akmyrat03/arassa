@@ -16,19 +16,9 @@ type NewsRepository struct {
 	DB *sqlx.DB
 }
 
-func NewRepository(DB *sqlx.DB) *NewsRepository {
-	return &NewsRepository{DB: DB}
+func NewRepository(db *sqlx.DB) *NewsRepository {
+	return &NewsRepository{DB: db}
 }
-
-// func (r *NewsRepository) Create(news model.News) (int, error) {
-// 	var id int
-// 	query := fmt.Sprintf("INSERT INTO %v (category_id, title, description, image, created_at) VALUES ($1, $2, $3, $4, Now()) RETURNING id", NEWS)
-// 	rows := r.DB.QueryRow(query, news.CategoryID, news.Title, news.Description, news.ImageURL)
-// 	if err := rows.Scan(&id); err != nil {
-// 		return 0, err
-// 	}
-// 	return id, nil
-// }
 
 func (r *NewsRepository) Create(news model.News) (int, error) {
 	tx, err := r.DB.Begin()
@@ -39,16 +29,16 @@ func (r *NewsRepository) Create(news model.News) (int, error) {
 
 	defer tx.Rollback()
 
-	var newsId int
+	var newsID int
 	query := `INSERT INTO news (image, category_id) VALUES ($1, $2) RETURNING id`
-	err = tx.QueryRow(query, news.ImageURL, news.CategoryID).Scan(&newsId)
+	err = tx.QueryRow(query, news.ImageURL, news.CategoryID).Scan(&newsID)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, translation := range news.Translations {
 		query := `INSERT INTO news_translate (news_id, lang_id, title, description) VALUES ($1, $2, $3, $4)`
-		_, err := tx.Exec(query, newsId, translation.LangID, translation.Title, translation.Description)
+		_, err := tx.Exec(query, newsID, translation.LangID, translation.Title, translation.Description)
 		if err != nil {
 			return 0, err
 		}
@@ -58,7 +48,7 @@ func (r *NewsRepository) Create(news model.News) (int, error) {
 		return 0, err
 	}
 
-	return newsId, nil
+	return newsID, nil
 }
 
 func (r *NewsRepository) Delete(id int) error {
@@ -105,7 +95,7 @@ func (r *NewsRepository) GetByID(id int) (model.News, error) {
 	return news, nil
 }
 
-func (r *NewsRepository) GetAllNewsByLangID(langID int) ([]model.NewsLang, error) {
+func (r *NewsRepository) GetAllNewsByLangID(langID, page, limit int) ([]model.NewsLang, error) {
 	var newsListTKM []model.NewsLang
 	query := `
 	SELECT 
@@ -118,8 +108,14 @@ func (r *NewsRepository) GetAllNewsByLangID(langID int) ([]model.NewsLang, error
 		cat_translate AS ct ON n.category_id=ct.cat_id AND nt.lang_id=ct.lang_id 
 	WHERE 
 		nt.lang_id = $1
+	ORDER BY 
+		n.id ASC, nt.lang_id ASC
+	LIMIT $2 OFFSET $3		
 	`
-	rows, err := r.DB.Query(query, langID)
+
+	offset := (page - 1) * limit
+
+	rows, err := r.DB.Query(query, langID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +139,7 @@ func (r *NewsRepository) GetAllNewsByLangID(langID int) ([]model.NewsLang, error
 	return newsListTKM, nil
 }
 
-func (r *NewsRepository) GetAllNewsByLangAndCategory(langID, categoryID int) ([]model.NewsLang, error) {
+func (r *NewsRepository) GetAllNewsByLangAndCategory(langID, categoryID, page, limit int) ([]model.NewsLang, error) {
 	var newsList []model.NewsLang
 	query := `
 	SELECT 
@@ -156,8 +152,13 @@ func (r *NewsRepository) GetAllNewsByLangAndCategory(langID, categoryID int) ([]
 		cat_translate AS ct ON n.category_id = ct.cat_id AND nt.lang_id = ct.lang_id 
 	WHERE 
 		nt.lang_id = $1 AND n.category_id = $2
+	ORDER BY 
+		n.id ASC
+	LIMIT $3 OFFSET $4
 	`
-	rows, err := r.DB.Query(query, langID, categoryID)
+
+	offset := (page - 1) * limit
+	rows, err := r.DB.Query(query, langID, categoryID, limit, offset)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"arassachylyk/internal/videos/model"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -10,8 +11,8 @@ type VideoRepository struct {
 	DB *sqlx.DB
 }
 
-func NewVideoRepository(DB *sqlx.DB) *VideoRepository {
-	return &VideoRepository{DB: DB}
+func NewVideoRepository(db *sqlx.DB) *VideoRepository {
+	return &VideoRepository{DB: db}
 }
 
 func (r *VideoRepository) Upload(title model.Title) (int, error) {
@@ -22,10 +23,14 @@ func (r *VideoRepository) Upload(title model.Title) (int, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			tx.Rollback()
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				fmt.Println("Rollback failed:", rollbackErr)
+			}
 			panic(r)
 		} else if err != nil {
-			tx.Rollback()
+			if rollbackErr := tx.Rollback(); rollbackErr != nil {
+				fmt.Println("Rollback failed:", rollbackErr)
+			}
 		} else {
 			err = tx.Commit()
 		}
@@ -66,9 +71,11 @@ func (r *VideoRepository) Upload(title model.Title) (int, error) {
 func (r *VideoRepository) Delete(id int) error {
 	query := `DELETE FROM video_titles WHERE id = $1`
 	_, err := r.DB.Exec(query, id)
+
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -77,9 +84,11 @@ func (r *VideoRepository) GetVideoPathsByID(id int) ([]string, error) {
 
 	query := "SELECT video_path FROM videos WHERE video_title_id = $1"
 	rows, err := r.DB.Query(query, id)
+
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
 
 	for rows.Next() {
@@ -87,12 +96,14 @@ func (r *VideoRepository) GetVideoPathsByID(id int) ([]string, error) {
 		if err := rows.Scan(&videoPath); err != nil {
 			return nil, err
 		}
+
 		paths = append(paths, videoPath)
 	}
+
 	return paths, nil
 }
 
-func (r *VideoRepository) GetAllVideos(langID int) ([]model.Video, error) {
+func (r *VideoRepository) GetAllVideos(langID, page, limit int) ([]model.Video, error) {
 	var videos []model.Video
 	query := `
 		SELECT 
@@ -109,8 +120,12 @@ func (r *VideoRepository) GetAllVideos(langID int) ([]model.Video, error) {
 		WHERE vtt.lang_id=$1	
 		ORDER BY 
 			vt.id ASC, vtt.lang_id ASC
+		LIMIT $2 OFFSET $3	
 	`
-	err := r.DB.Select(&videos, query, langID)
+
+	offset := (page - 1) * limit
+
+	err := r.DB.Select(&videos, query, langID, limit, offset)
 	if err != nil {
 		return nil, err
 	}

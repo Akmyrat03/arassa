@@ -21,6 +21,6 @@ func (s *CategoryService) Delete(id int) error {
 	return s.repo.Delete(id)
 }
 
-func (s *CategoryService) GetAllByLangID(langId int) ([]model.CategoryRes, error) {
-	return s.repo.GetAllByLangID(langId)
+func (s *CategoryService) GetAllByLangID(langID int) ([]model.CategoryRes, error) {
+	return s.repo.GetAllByLangID(langID)
 }

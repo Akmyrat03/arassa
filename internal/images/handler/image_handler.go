@@ -4,12 +4,20 @@ import (
 	"arassachylyk/internal/images/model"
 	"arassachylyk/internal/images/service"
 	handler "arassachylyk/pkg/response"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+)
+
+const (
+	DefaultPermissions = 0755
+	LangIDTurkmen      = 1
+	LangIDEnglish      = 2
+	LangIDRussian      = 3
 )
 
 type ImageHandler struct {
@@ -22,23 +30,22 @@ func NewImageHandler(service *service.ImageService) *ImageHandler {
 
 // CreateImages
 // @Summary Upload multiple images and create a title with translations
-// @Description Upload multiple images with associated titles in different languages. Requires a valid JWT token in the Authorization header.
+// @Description Upload multiple images with associated titles in different languages. Requires a valid JWT token
 // @Tags Images
 // @Accept multipart/form-data
 // @Produce json
-// @Param title_tkm formData string true "Title in Turkmen"
-// @Param title_eng formData string true "Title in English"
-// @Param title_rus formData string true "Title in Russian"
+// @Param titleTurkmen formData string true "Title in Turkmen"
+// @Param titleEnglish formData string true "Title in English"
+// @Param titleRussian formData string true "Title in Russian"
 // @Param images formData file true "Images to upload" multiple
 // @Success 200 {object} response.ErrorResponse "Successfully added title and images"
 // @Failure 400 {object} response.ErrorResponse "Invalid input or file size exceeds limit"
 // @Failure 401 {object} response.ErrorResponse "Invalid or expired token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /images/add [post]
-// @security BearerAuth
+// @Router /images [post]
+// @security BearerAuth.
 func (h *ImageHandler) CreateImages() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		const maxUploadSize = 10 * 1024 * 1024 // 10MB
 
 		if c.Request.ContentLength > maxUploadSize {
@@ -46,14 +53,14 @@ func (h *ImageHandler) CreateImages() gin.HandlerFunc {
 			return
 		}
 
-		titleTkm := c.PostForm("title_tkm")
-		titleEng := c.PostForm("title_eng")
-		titleRus := c.PostForm("title_rus")
+		titleTkm := c.PostForm("titleTurkmen")
+		titleEng := c.PostForm("titleEnglish")
+		titleRus := c.PostForm("titleRussian")
 
 		translations := []model.Translation{
-			{LangID: 1, Title: titleTkm},
-			{LangID: 2, Title: titleEng},
-			{LangID: 3, Title: titleRus},
+			{LangID: LangIDTurkmen, Title: titleTkm},
+			{LangID: LangIDEnglish, Title: titleEng},
+			{LangID: LangIDRussian, Title: titleRus},
 		}
 
 		var images []string
@@ -75,11 +82,13 @@ func (h *ImageHandler) CreateImages() gin.HandlerFunc {
 		uploadDir := "./uploads/images"
 
 		if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-			os.Mkdir(uploadDir, 0755)
+			if err := os.Mkdir(uploadDir, DefaultPermissions); err != nil {
+				fmt.Printf("Failed to create directory %s: %v\n", uploadDir, err)
+				return
+			}
 		}
 
 		for _, file := range files {
-
 			filePath := filepath.Join(uploadDir, file.Filename)
 			if err := c.SaveUploadedFile(file, filePath); err != nil {
 				handler.NewErrorResponse(c, http.StatusInternalServerError, "Failed to upload image")
@@ -119,11 +128,10 @@ func (h *ImageHandler) CreateImages() gin.HandlerFunc {
 // @Failure 400 {object} response.ErrorResponse "Invalid title ID"
 // @Failure 401 {object} response.ErrorResponse "Invalid or expired token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /images/delete/{id} [delete]
-// @security BearerAuth
+// @Router /images/{id} [delete]
+// @security BearerAuth.
 func (h *ImageHandler) DeleteImages() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
@@ -144,7 +152,6 @@ func (h *ImageHandler) DeleteImages() gin.HandlerFunc {
 			}
 
 		}
-
 		err = h.service.Delete(id)
 		if err != nil {
 			handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -168,7 +175,7 @@ func (h *ImageHandler) DeleteImages() gin.HandlerFunc {
 // @Success 200 {object} response.ErrorResponse "Successfully retrieved images"
 // @Failure 400 {object} response.ErrorResponse "Invalid lang_id"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /images/all [get]
+// @Router /images/all [get].
 func (h *ImageHandler) GetAllImages(c *gin.Context) {
 	langID, err := strconv.Atoi(c.Query("lang_id"))
 	if err != nil {
@@ -183,4 +190,34 @@ func (h *ImageHandler) GetAllImages(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"images": images})
+}
+
+func (h *ImageHandler) GetPaginatedImages(c *gin.Context) {
+	langID, err := strconv.Atoi(c.Query("lang_id"))
+	if err != nil || langID <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid or missing language ID")
+		return
+	}
+
+	page, err := strconv.Atoi(c.Query("page"))
+	if err != nil || page <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid page number")
+		return
+	}
+
+	limit, err := strconv.Atoi(c.Query("limit"))
+	if err != nil || limit <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid limit")
+		return
+	}
+
+	images, err := h.service.GetPaginatedImg(langID, page, limit)
+	if err != nil {
+		handler.NewErrorResponse(c, http.StatusInternalServerError, "Could not get paginated images")
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"images": images,
+	})
 }

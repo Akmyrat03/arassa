@@ -22,26 +22,25 @@ func NewYearHandler(service *service.MottoService) *MottoHandler {
 
 // AddMotto
 // @Summary      Add a new motto
-// @Description  Adds a new motto with translations in three languages (Turkmen, English, Russian) and an image upload. Requires a valid Bearer token.
+// @Description  Adds a new motto with translations (Turkmen, English, Russian) and an image upload. Requires valid token.
 // @Tags         Motto
 // @Accept       multipart/form-data
 // @Produce      json
-// @Param        name_tkm  formData string true "Motto name in Turkmen"
-// @Param        name_eng  formData string true "Motto name in English"
-// @Param        name_rus  formData string true "Motto name in Russian"
+// @Param        nameTurkmen  formData string true "Motto name in Turkmen"
+// @Param        nameEnglish  formData string true "Motto name in English"
+// @Param        nameRussian  formData string true "Motto name in Russian"
 // @Param        image     formData file   true "Motto image"
 // @Success      200 {object} map[string]interface{}
 // @Failure      400 {object} map[string]interface{}
 // @Failure      401 {object} map[string]interface{}
 // @Failure      500 {object} map[string]interface{}
-// @Router       /motto/add [post]
-// @security BearerAuth
+// @Router       /motto [post]
+// @security BearerAuth.
 func (h *MottoHandler) AddMotto() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		nameTkm := c.PostForm("name_tkm")
-		nameEng := c.PostForm("name_eng")
-		nameRus := c.PostForm("name_rus")
+		nameTkm := c.PostForm("nameTurkmen")
+		nameEng := c.PostForm("nameEnglish")
+		nameRus := c.PostForm("nameRussian")
 
 		translations := []model.Translation{
 			{LangID: 1, Name: nameTkm},
@@ -97,8 +96,8 @@ func (h *MottoHandler) AddMotto() gin.HandlerFunc {
 // @Failure      400 {object} response.ErrorResponse "Invalid ID format"
 // @Failure      404 {object} response.ErrorResponse "Cannot get motto by ID"
 // @Failure      500 {object} response.ErrorResponse "Cannot delete year"
-// @Router       /motto/delete/{id} [delete]
-// @security BearerAuth
+// @Router       /motto/{id} [delete]
+// @security BearerAuth.
 func (h *MottoHandler) DeleteMotto() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
@@ -145,7 +144,7 @@ func (h *MottoHandler) DeleteMotto() gin.HandlerFunc {
 // @Failure      400 {object} response.ErrorResponse "Invalid language ID format"
 // @Failure      404 {object} response.ErrorResponse "No mottos found"
 // @Failure      500 {object} response.ErrorResponse "Cannot retrieve mottos"
-// @Router       /motto/all [get]
+// @Router       /motto [get].
 func (h *MottoHandler) GetAllMottos() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		langID, err := strconv.Atoi(c.Query("lang_id"))

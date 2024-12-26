@@ -14,8 +14,8 @@ type MottoRepository struct {
 	DB *sqlx.DB
 }
 
-func NewYearRepository(DB *sqlx.DB) *MottoRepository {
-	return &MottoRepository{DB: DB}
+func NewYearRepository(db *sqlx.DB) *MottoRepository {
+	return &MottoRepository{DB: db}
 }
 
 func (r *MottoRepository) Create(motto model.Motto) (int, error) {
@@ -26,16 +26,16 @@ func (r *MottoRepository) Create(motto model.Motto) (int, error) {
 
 	defer tx.Rollback()
 
-	var mottoId int
+	var mottoID int
 	query := `INSERT INTO motto (image_url) VALUES ($1) RETURNING id`
-	err = tx.QueryRow(query, motto.ImageURL).Scan(&mottoId)
+	err = tx.QueryRow(query, motto.ImageURL).Scan(&mottoID)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, translation := range motto.Translations {
 		query := `INSERT INTO motto_translate (motto_id, lang_id, name) VALUES ($1, $2, $3)`
-		_, err := tx.Exec(query, mottoId, translation.LangID, translation.Name)
+		_, err := tx.Exec(query, mottoID, translation.LangID, translation.Name)
 		if err != nil {
 			return 0, err
 		}
@@ -45,8 +45,7 @@ func (r *MottoRepository) Create(motto model.Motto) (int, error) {
 		return 0, err
 	}
 
-	return mottoId, nil
-
+	return mottoID, nil
 }
 
 func (r *MottoRepository) Delete(id int) error {
@@ -55,6 +54,7 @@ func (r *MottoRepository) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -85,6 +85,7 @@ func (r *MottoRepository) GetByID(id int) (model.Motto, error) {
 		translations = append(translations, translation)
 	}
 	motto.Translations = translations
+
 	return motto, nil
 }
 

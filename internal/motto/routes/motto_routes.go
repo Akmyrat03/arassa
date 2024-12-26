@@ -10,7 +10,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func InitYearRoutes(router *gin.RouterGroup, db *sqlx.DB) {
+func InitMottoRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	mottoRepo := repository.NewYearRepository(db)
 	mottoService := service.NewYearService(mottoRepo)
 	mottoHandler := handler.NewYearHandler(mottoService)
@@ -18,9 +18,9 @@ func InitYearRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	mottoRoutes := router.Group("/motto")
 	mottoRoutes.Use(internal.AuthMiddleware())
 	{
-		mottoRoutes.POST("/add", mottoHandler.AddMotto())
-		mottoRoutes.DELETE("/delete/:id", mottoHandler.DeleteMotto())
+		mottoRoutes.POST("/", mottoHandler.AddMotto())
+		mottoRoutes.DELETE("/:id", mottoHandler.DeleteMotto())
 	}
-	router.GET("/motto/all", mottoHandler.GetAllMottos())
+	mottoRoutes.GET("/", mottoHandler.GetAllMottos())
 
 }

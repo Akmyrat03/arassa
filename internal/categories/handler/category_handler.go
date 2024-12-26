@@ -24,21 +24,20 @@ func NewCategoryHandler(service *service.CategoryService) *CategoryHandler {
 // @Tags Categories
 // @Accept multipart/form-data
 // @Produce json
-// @Param category_tkm formData string true "Category in Turkmen"
-// @Param category_eng formData string true "Category in English"
-// @Param category_rus formData string true "Category in Russian"
+// @Param categoryTurkmen formData string true "Category in Turkmen"
+// @Param categoryEnglish formData string true "Category in English"
+// @Param categoryRussian formData string true "Category in Russian"
 // @Success 200 {object} response.ErrorResponse "Category created successfully"
 // @Failure 400 {object} response.ErrorResponse "Invalid input"
 // @Failure 401 {object} response.ErrorResponse "Invalid or expired token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /categories/add [post]
-// @security BearerAuth
+// @Router /categories [post]
+// @security BearerAuth.
 func (h *CategoryHandler) CreateCategory() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		categoryTkm := c.PostForm("category_tkm")
-		categoryEng := c.PostForm("category_eng")
-		categoryRus := c.PostForm("category_rus")
+		categoryTkm := c.PostForm("categoryTurkmen")
+		categoryEng := c.PostForm("categoryEnglish")
+		categoryRus := c.PostForm("categoryRussian")
 
 		translations := []model.Translation{
 			{Name: categoryTkm, LangID: 1},
@@ -74,11 +73,10 @@ func (h *CategoryHandler) CreateCategory() gin.HandlerFunc {
 // @Failure 400 {object} response.ErrorResponse "Invalid category ID"
 // @Failure 401 {object} response.ErrorResponse "Invalid or expired token"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /categories/delete/{id} [delete]
-// @security BearerAuth
+// @Router /categories/{id} [delete]
+// @security BearerAuth.
 func (h *CategoryHandler) DeleteCategory() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
 			handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid type id")
@@ -106,21 +104,23 @@ func (h *CategoryHandler) DeleteCategory() gin.HandlerFunc {
 // @Param id query int true "Language ID"
 // @Success 200 {object} response.ErrorResponse "List of categories"
 // @Failure 400 {object} response.ErrorResponse "Bad request"
-// @Router /categories/all [get]
-func (h *CategoryHandler) GetAllCategories(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
-	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid ID")
-		return
-	}
+// @Router /categories [get].
+func (h *CategoryHandler) GetAllCategories() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		langID, err := strconv.Atoi(c.Query("lang_id"))
+		if err != nil || langID <= 0 {
+			handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid ID")
+			return
+		}
 
-	categories, err := h.service.GetAllByLangID(id)
-	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
+		categories, err := h.service.GetAllByLangID(langID)
+		if err != nil {
+			handler.NewErrorResponse(c, http.StatusBadRequest, err.Error())
+			return
+		}
 
-	c.JSON(http.StatusOK, gin.H{
-		"categories": categories,
-	})
+		c.JSON(http.StatusOK, gin.H{
+			"categories": categories,
+		})
+	}
 }

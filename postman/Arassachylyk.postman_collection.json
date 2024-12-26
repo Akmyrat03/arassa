@@ -1,0 +1,774 @@
+{
+	"info": {
+		"_postman_id": "e02da3f3-e8af-4838-9d48-51d04dcf13bd",
+		"name": "Arassachylyk",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38154818"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Images",
+					"item": [
+						{
+							"name": "image-pagination",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/images?lang_id=2&page=1&limit=3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"images"
+									],
+									"query": [
+										{
+											"key": "lang_id",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "News",
+					"item": [
+						{
+							"name": "news-pagination",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/news/all?lang_id=2&page=1&limit=3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"news",
+										"all"
+									],
+									"query": [
+										{
+											"key": "lang_id",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "news-by-category-pagination",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/news?category_id=4&lang_id=2&page=1&limit=3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"news"
+									],
+									"query": [
+										{
+											"key": "category_id",
+											"value": "4"
+										},
+										{
+											"key": "lang_id",
+											"value": "2"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Videos",
+					"item": [
+						{
+							"name": "videos_pagination",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/videos?lang_id=1&page=1&limit=10",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"videos"
+									],
+									"query": [
+										{
+											"key": "lang_id",
+											"value": "1"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Motto",
+					"item": [
+						{
+							"name": "view-motto",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/motto?lang_id=2",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"motto"
+									],
+									"query": [
+										{
+											"key": "lang_id",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "view-categories",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8000/api/categories?lang_id=3",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"categories"
+									],
+									"query": [
+										{
+											"key": "lang_id",
+											"value": "3"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Contact",
+					"item": [
+						{
+							"name": "contact-with-admin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Akmyrat",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "backendprogrammer0@gmail.com",
+											"type": "text"
+										},
+										{
+											"key": "message",
+											"value": "Salam hemma!!!",
+											"type": "text"
+										},
+										{
+											"key": "phone_number",
+											"value": "61985400",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/contact",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"contact"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "login-get-token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "Bagul",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8000/api/admin/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"admin",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Admin",
+			"item": [
+				{
+					"name": "Images",
+					"item": [
+						{
+							"name": "delete-images",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU0OTMwNjUsImlhdCI6MTczNDg4ODI2NSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.uOGCCmentjpe7Qz0XbIJHSyWFF281l32XGCJOKJj43s",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/images/15",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"images",
+										"15"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-images",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU0OTQ1MDcsImlhdCI6MTczNDg4OTcwNywiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.S3d88B8vwcPQu-eM_AfWtnymN109wNcv9wPm28DoTuQ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "titleTurkmen",
+											"value": "Aşgabat şäheri",
+											"type": "text"
+										},
+										{
+											"key": "titleEnglish",
+											"value": "Ashgabat city",
+											"type": "text"
+										},
+										{
+											"key": "titleRussian",
+											"value": "Asgabat Gorod",
+											"type": "text"
+										},
+										{
+											"key": "images",
+											"type": "file",
+											"src": "/home/akmyrat/Downloads/news_photos/2.jpeg"
+										},
+										{
+											"key": "images",
+											"type": "file",
+											"src": "/home/akmyrat/Downloads/news_photos/3.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/images",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"images"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Videos",
+					"item": [
+						{
+							"name": "video-upload",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU0OTQwNzYsImlhdCI6MTczNDg4OTI3NiwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.NayrEcEiggGkenLDAEvsX45a0hRJcsPYqCmAhuZXaZs",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "titleTurkmen",
+											"value": "Turkmen wideo",
+											"type": "text"
+										},
+										{
+											"key": "titleEnglish",
+											"value": "English video",
+											"type": "text"
+										},
+										{
+											"key": "titleRussian",
+											"value": "Ruskiy vidyo",
+											"type": "text"
+										},
+										{
+											"key": "videos",
+											"type": "file",
+											"src": "/home/akmyrat/Documents/Akmyrat/Golang_Tutoral/Hajy/ЗАПУСКАЕМ Golang ПРИЛОЖЕНИЕ В ДОКЕРЕ (1).mp4"
+										},
+										{
+											"key": "videos",
+											"type": "file",
+											"src": "/home/akmyrat/Documents/Akmyrat/Golang_Tutoral/Hajy/Dockerfile for Golang Step by Step 2024 (multi-stage build with distroless_scratch).mp4"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/videos",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"videos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-video",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTYxNDUsImlhdCI6MTczNTA1MTM0NSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.qo2Mh09xrK0Y63MSSnufxO-pskVABpxLTl0QGv42Aug",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/videos/10",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"videos",
+										"10"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Motto",
+					"item": [
+						{
+							"name": "delete-motto",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTQyNzksImlhdCI6MTczNTA0OTQ3OSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.8l9HuSoxUw-W8D8DSZf1A1Cxpv7LUYG14wnEw5TKhY8",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "Auth",
+											"value": "",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/motto/5",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"motto",
+										"5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add-motto",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTQ5NzQsImlhdCI6MTczNTA1MDE3NCwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.Z0QeCH3WlGlq_8GEURUZqB6A9VaxNW1_ixRz1WfZ52k",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "nameTurkmen",
+											"value": "Pähim-paýhas ummany Magtymguly Pyragy",
+											"type": "text"
+										},
+										{
+											"key": "nameEnglish",
+											"value": "The ocean of wisdom Magtymguly Pyragy",
+											"type": "text"
+										},
+										{
+											"key": "nameRussian",
+											"value": "Океан мудрости Магтумкули Пираги",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/home/akmyrat/Downloads/2024.jpg"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/motto",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"motto"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Categories",
+					"item": [
+						{
+							"name": "add-category",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTU2NTEsImlhdCI6MTczNTA1MDg1MSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.vOx2-8SO54AkkXUg3wzlWzJOpN7u29zmUFeILayLBYI",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "categoryTurkmen",
+											"value": "Turkmen",
+											"type": "text"
+										},
+										{
+											"key": "categoryEnglish",
+											"value": "Inlis",
+											"type": "text"
+										},
+										{
+											"key": "categoryRussian",
+											"value": "Rus",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/categories",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-category",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTYxNDUsImlhdCI6MTczNTA1MTM0NSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.qo2Mh09xrK0Y63MSSnufxO-pskVABpxLTl0QGv42Aug",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/categories/20",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"categories",
+										"20"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "News",
+					"item": [
+						{
+							"name": "add-news",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTc5ODUsImlhdCI6MTczNTA1MzE4NSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.Y8KdifomvZuRogA29kfCCstY-GYnRqde0xVIsDXdMQg",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "title_tkm",
+											"value": "Tazelik",
+											"type": "text"
+										},
+										{
+											"key": "description_tkm",
+											"value": "Tazelikler barde !!!",
+											"type": "text"
+										},
+										{
+											"key": "title_eng",
+											"value": "News",
+											"type": "text"
+										},
+										{
+											"key": "description_eng",
+											"value": "News are here !!!",
+											"type": "text"
+										},
+										{
+											"key": "title_rus",
+											"value": "Nowosty",
+											"type": "text"
+										},
+										{
+											"key": "description_rus",
+											"value": "Nowosty zdes !!!",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/home/akmyrat/Downloads/news_photos/2.jpeg"
+										},
+										{
+											"key": "category_id",
+											"value": "4",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "http://localhost:8000/api/news",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"news"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete-news",
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzU2NTc5ODUsImlhdCI6MTczNTA1MzE4NSwiYWRtaW5faWQiOjUsInVzZXJuYW1lIjoiQmFndWwifQ.Y8KdifomvZuRogA29kfCCstY-GYnRqde0xVIsDXdMQg",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://localhost:8000/api/news/6",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"news",
+										"6"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

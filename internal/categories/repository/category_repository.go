@@ -2,7 +2,6 @@ package repository
 
 import (
 	"arassachylyk/internal/categories/model"
-	"fmt"
 	"log"
 
 	"github.com/jmoiron/sqlx"
@@ -16,8 +15,8 @@ type CategoryRepository struct {
 	DB *sqlx.DB
 }
 
-func NewCategoryRepository(DB *sqlx.DB) *CategoryRepository {
-	return &CategoryRepository{DB: DB}
+func NewCategoryRepository(db *sqlx.DB) *CategoryRepository {
+	return &CategoryRepository{DB: db}
 }
 
 func (r *CategoryRepository) Create(category model.CategoryReq) (int, error) {
@@ -27,18 +26,22 @@ func (r *CategoryRepository) Create(category model.CategoryReq) (int, error) {
 		return 0, err
 	}
 
-	defer tx.Rollback()
+	defer func() {
+		if rollbackErr := tx.Rollback(); rollbackErr != nil && err == nil {
+			log.Println("Error during transaction rollback:", rollbackErr)
+		}
+	}()
 
 	var categoryID int
-	err = tx.QueryRow("INSERT INTO categories DEFAULT VALUES RETURNING id").Scan(&categoryID)
+
+	err = tx.QueryRow(categoriesQuery).Scan(&categoryID)
 	if err != nil {
 		return 0, err
 	}
 
 	for _, translation := range category.Translations {
 		_, err := tx.Exec(
-			`INSERT INTO cat_translate (cat_id, lang_id, name)
-			VALUES ($1, $2, $3)`, categoryID, translation.LangID, translation.Name,
+			categoryTranslateQuery, categoryID, translation.LangID, translation.Name,
 		)
 		if err != nil {
 			return 0, err
@@ -54,8 +57,7 @@ func (r *CategoryRepository) Create(category model.CategoryReq) (int, error) {
 }
 
 func (r *CategoryRepository) Delete(id int) error {
-	query := fmt.Sprintf("DELETE FROM %v WHERE id = $1", CATEGORIES)
-	_, err := r.DB.Exec(query, id)
+	_, err := r.DB.Exec(deleteCategory, id)
 	if err != nil {
 		return err
 	}
@@ -63,20 +65,10 @@ func (r *CategoryRepository) Delete(id int) error {
 	return nil
 }
 
-func (r *CategoryRepository) GetAllByLangID(langId int) ([]model.CategoryRes, error) {
+func (r *CategoryRepository) GetAllByLangID(langID int) ([]model.CategoryRes, error) {
 	var category []model.CategoryRes
-	query := `
-		SELECT 
-			c.id, ct.name 
-		FROM 
-			categories AS c 
-		INNER JOIN 
-			cat_translate AS ct ON c.id=ct.cat_id 
-		INNER JOIN 
-			languages AS l ON l.id=ct.lang_id 
-		WHERE lang_id = $1	
-		`
-	rows, err := r.DB.Query(query, langId)
+
+	rows, err := r.DB.Query(getAllCategoriesByLangID, langID)
 	if err != nil {
 		return nil, err
 	}
@@ -86,9 +78,11 @@ func (r *CategoryRepository) GetAllByLangID(langId int) ([]model.CategoryRes, er
 	for rows.Next() {
 		var res model.CategoryRes
 		err := rows.Scan(&res.ID, &res.Name)
+
 		if err != nil {
 			return nil, err
 		}
+
 		category = append(category, res)
 	}
 

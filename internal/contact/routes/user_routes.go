@@ -14,8 +14,6 @@ func InitContactRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	userService := service.NewContactService(userRepo)
 	userHandler := handler.NewContactHandler(userService)
 
-	userRoutes := router.Group("/contact")
-
-	userRoutes.POST("/message", userHandler.SendMessage)
+	router.POST("/contact", userHandler.SendMessage)
 
 }

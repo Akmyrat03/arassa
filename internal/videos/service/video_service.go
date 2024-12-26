@@ -25,6 +25,6 @@ func (s *VideoService) GetVideoPaths(id int) ([]string, error) {
 	return s.repo.GetVideoPathsByID(id)
 }
 
-func (s *VideoService) GetAll(id int) ([]model.Video, error) {
-	return s.repo.GetAllVideos(id)
+func (s *VideoService) GetAll(langID, page, limit int) ([]model.Video, error) {
+	return s.repo.GetAllVideos(langID, page, limit)
 }

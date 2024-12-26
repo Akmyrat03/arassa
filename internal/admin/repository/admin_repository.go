@@ -16,25 +16,23 @@ type AdminRepository struct {
 	DB *sqlx.DB
 }
 
-func NewAdminRepository(DB *sqlx.DB) *AdminRepository {
-	return &AdminRepository{DB: DB}
+func NewAdminRepository(db *sqlx.DB) *AdminRepository {
+	return &AdminRepository{DB: db}
 }
 
 func (r *AdminRepository) Create(admin *model.Admin) (int, error) {
 	var id int
-	query := `INSERT INTO admin (username, password) VALUES ($1, $2) RETURNING id`
-	err := r.DB.QueryRow(query, admin.Username, admin.Password).Scan(&id)
+	err := r.DB.QueryRow(signUpQuery, admin.Username, admin.Password).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
+
 	return id, nil
 }
 
 func (r *AdminRepository) GetAdmin(username, password string) (model.Admin, error) {
-	query := fmt.Sprintf(`SELECT id, username, password FROM %v WHERE username= $1 AND password=$2`, Admin)
-
 	var user model.Admin
-	err := r.DB.Get(&user, query, username, password)
+	err := r.DB.Get(&user, getAdminQuery, username, password)
 	if err != nil {
 		return model.Admin{}, errors.New("incorrect username or password")
 	}

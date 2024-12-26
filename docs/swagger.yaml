@@ -62,7 +62,31 @@ paths:
       summary: Login and get JWT token
       tags:
       - Login
-  /categories/add:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all categories by language ID
+      parameters:
+      - description: Language ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of categories
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all categories by langID
+      tags:
+      - Categories
     post:
       consumes:
       - multipart/form-data
@@ -71,17 +95,17 @@ paths:
       parameters:
       - description: Category in Turkmen
         in: formData
-        name: category_tkm
+        name: categoryTurkmen
         required: true
         type: string
       - description: Category in English
         in: formData
-        name: category_eng
+        name: categoryEnglish
         required: true
         type: string
       - description: Category in Russian
         in: formData
-        name: category_rus
+        name: categoryRussian
         required: true
         type: string
       produces:
@@ -108,32 +132,7 @@ paths:
       summary: Create a new category
       tags:
       - Categories
-  /categories/all:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves all categories by language ID
-      parameters:
-      - description: Language ID
-        in: query
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of categories
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: Bad request
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all categories by langID
-      tags:
-      - Categories
-  /categories/delete/{id}:
+  /categories/{id}:
     delete:
       consumes:
       - application/json
@@ -169,7 +168,7 @@ paths:
       summary: Delete a category
       tags:
       - Categories
-  /contact/message:
+  /contact:
     post:
       consumes:
       - application/x-www-form-urlencoded
@@ -213,7 +212,7 @@ paths:
       summary: Send a contact message
       tags:
       - Contact
-  /images/add:
+  /images:
     post:
       consumes:
       - multipart/form-data
@@ -222,17 +221,17 @@ paths:
       parameters:
       - description: Title in Turkmen
         in: formData
-        name: title_tkm
+        name: titleTurkmen
         required: true
         type: string
       - description: Title in English
         in: formData
-        name: title_eng
+        name: titleEnglish
         required: true
         type: string
       - description: Title in Russian
         in: formData
-        name: title_rus
+        name: titleRussian
         required: true
         type: string
       - description: Images to upload
@@ -264,37 +263,7 @@ paths:
       summary: Upload multiple images and create a title with translations
       tags:
       - Images
-  /images/all:
-    get:
-      consumes:
-      - application/json
-      description: Retrieve a list of images filtered by language using the lang_id
-        query parameter
-      parameters:
-      - description: Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)
-        in: query
-        name: lang_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully retrieved images
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: Invalid lang_id
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get images by language
-      tags:
-      - Images
-  /images/delete/{id}:
+  /images/{id}:
     delete:
       consumes:
       - application/json
@@ -330,62 +299,37 @@ paths:
       summary: Delete a title and its associated images
       tags:
       - Images
-  /motto/add:
-    post:
+  /images/all:
+    get:
       consumes:
-      - multipart/form-data
-      description: Adds a new motto with translations in three languages (Turkmen,
-        English, Russian) and an image upload. Requires a valid Bearer token.
+      - application/json
+      description: Retrieve a list of images filtered by language using the lang_id
+        query parameter
       parameters:
-      - description: Motto name in Turkmen
-        in: formData
-        name: name_tkm
+      - description: Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)
+        in: query
+        name: lang_id
         required: true
-        type: string
-      - description: Motto name in English
-        in: formData
-        name: name_eng
-        required: true
-        type: string
-      - description: Motto name in Russian
-        in: formData
-        name: name_rus
-        required: true
-        type: string
-      - description: Motto image
-        in: formData
-        name: image
-        required: true
-        type: file
+        type: integer
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Successfully retrieved images
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Bad Request
+          description: Invalid lang_id
           schema:
-            additionalProperties: true
-            type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/response.ErrorResponse'
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Add a new motto
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get images by language
       tags:
-      - Motto
-  /motto/all:
+      - Images
+  /motto:
     get:
       consumes:
       - application/json
@@ -421,7 +365,61 @@ paths:
       summary: Get all mottos
       tags:
       - Motto
-  /motto/delete/{id}:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Adds a new motto with translations in three languages (Turkmen,
+        English, Russian) and an image upload. Requires a valid Bearer token.
+      parameters:
+      - description: Motto name in Turkmen
+        in: formData
+        name: nameTurkmen
+        required: true
+        type: string
+      - description: Motto name in English
+        in: formData
+        name: nameEnglish
+        required: true
+        type: string
+      - description: Motto name in Russian
+        in: formData
+        name: nameRussian
+        required: true
+        type: string
+      - description: Motto image
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add a new motto
+      tags:
+      - Motto
+  /motto/{id}:
     delete:
       consumes:
       - application/json
@@ -456,7 +454,53 @@ paths:
       summary: Delete a motto
       tags:
       - Motto
-  /news/add-news:
+  /news:
+    get:
+      consumes:
+      - application/json
+      description: Fetch all news based on language ID and category ID
+      parameters:
+      - description: Category ID
+        in: query
+        name: category_id
+        required: true
+        type: integer
+      - description: Language ID
+        in: query
+        name: lang_id
+        required: true
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of news
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all news by language and category
+      tags:
+      - News
     post:
       consumes:
       - multipart/form-data
@@ -523,74 +567,7 @@ paths:
       summary: Create a news item
       tags:
       - News
-  /news/all:
-    get:
-      consumes:
-      - application/json
-      description: Retrieves all news articles available in a specific language by
-        language ID.
-      parameters:
-      - description: Language ID
-        in: query
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of news articles
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: Invalid ID
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      summary: Get all news in a specific language
-      tags:
-      - News
-  /news/category:
-    get:
-      consumes:
-      - application/json
-      description: Fetch all news based on language ID and category ID
-      parameters:
-      - description: Language ID (e.g., 1 for Turkmen, 2 for Russian)
-        in: query
-        name: lang_id
-        required: true
-        type: integer
-      - description: Category ID
-        in: query
-        name: category_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of news
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Invalid input
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal server error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get all news by language and category
-      tags:
-      - News
-  /news/delete/{id}:
+  /news/{id}:
     delete:
       description: Deletes a news by its ID
       parameters:
@@ -617,16 +594,66 @@ paths:
       summary: Delete a news
       tags:
       - News
-  /videos/all:
+  /news/all:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all news articles available in a specific language by
+        language ID with pagination.
+      parameters:
+      - description: Language ID
+        in: query
+        name: lang_id
+        required: true
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of news articles
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid Language ID or Pagination Parameters
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all news in a specific language
+      tags:
+      - News
+  /videos:
     get:
       consumes:
       - application/json
       description: Retrieve a list of videos filtered by language using the lang_id
         query parameter
       parameters:
-      - description: Language ID (e.g., 1 for Turkmen, 2 for English, 3 for Russian)
+      - description: Language ID (1 for Turkmen, 2 for English, 3 for Russian)
         in: query
         name: lang_id
+        required: true
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
         required: true
         type: integer
       produces:
@@ -637,7 +664,7 @@ paths:
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "400":
-          description: Invalid lang_id
+          description: Invalid request
           schema:
             $ref: '#/definitions/response.ErrorResponse'
         "500":
@@ -647,7 +674,53 @@ paths:
       summary: Get videos by language
       tags:
       - Videos
-  /videos/delete/{id}:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload multiple videos with their title translations in different
+        languages (e.g., Turkmen, English, Russian).
+      parameters:
+      - description: Title in Turkmen
+        in: formData
+        name: titleTurkmen
+        required: true
+        type: string
+      - description: Title in English
+        in: formData
+        name: titleEnglish
+        required: true
+        type: string
+      - description: Title in Russian
+        in: formData
+        name: titleRussian
+        required: true
+        type: string
+      - description: Video files
+        in: formData
+        name: videos
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully uploaded videos
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "400":
+          description: Invalid form data or file size exceeds the limit
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Failed to upload video
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload videos with title translations
+      tags:
+      - Videos
+  /videos/{id}:
     delete:
       consumes:
       - application/json
@@ -677,53 +750,6 @@ paths:
       security:
       - BearerAuth: []
       summary: Delete video and associated files
-      tags:
-      - Videos
-  /videos/upload:
-    post:
-      consumes:
-      - multipart/form-data
-      description: Upload multiple videos with their title translations in different
-        languages (e.g., Turkmen, English, Russian).
-      parameters:
-      - description: Title in Turkmen
-        in: formData
-        name: title_tkm
-        required: true
-        type: string
-      - description: Title in English
-        in: formData
-        name: title_eng
-        required: true
-        type: string
-      - description: Title in Russian
-        in: formData
-        name: title_rus
-        required: true
-        type: string
-      - description: Video files
-        in: formData
-        name: videos
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully uploaded videos
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "400":
-          description: Invalid form data or file size exceeds the limit
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-        "500":
-          description: Failed to upload video
-          schema:
-            $ref: '#/definitions/response.ErrorResponse'
-      security:
-      - BearerAuth: []
-      summary: Upload videos with title translations
       tags:
       - Videos
 securityDefinitions:

@@ -18,9 +18,8 @@ func InitVideoRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 	videoRoutes := router.Group("/videos")
 	videoRoutes.Use(internal.AuthMiddleware())
 	{
-		videoRoutes.POST("/upload", videoHandler.UploadVideos())
-		videoRoutes.DELETE("/delete/:id", videoHandler.DeleteVideos())
+		videoRoutes.POST("/", videoHandler.UploadVideos())
+		videoRoutes.DELETE("/:id", videoHandler.DeleteVideos())
 	}
-	router.GET("/videos/all", videoHandler.GetAllVideos)
-
+	router.GET("/videos", videoHandler.GetAllVideosWithPagination)
 }

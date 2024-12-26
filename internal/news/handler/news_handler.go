@@ -39,27 +39,10 @@ func NewHandler(service *service.NewsService) *NewsHandler {
 // @Success 200 {object} response.ErrorResponse "Successfully created news"
 // @Failure 400 {object} response.ErrorResponse "Invalid input or bad request"
 // @Failure 500 {object} response.ErrorResponse "Internal server error"
-// @Router /news/add-news [post]
-// @security BearerAuth
+// @Router /news [post]
+// @security BearerAuth.
 func (h *NewsHandler) CreateNews() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.Request.Header.Get("Authorization")
-		if token == "" {
-			handler.NewErrorResponse(c, http.StatusUnauthorized, "Token gereklidir")
-			c.Abort()
-			return
-		}
-
-		token = strings.TrimPrefix(token, "Bearer ")
-
-		username, err := internal.ValidateToken(token)
-		if err != nil {
-			handler.NewErrorResponse(c, http.StatusUnauthorized, "Geçersiz token")
-			c.Abort()
-			return
-		}
-
-		fmt.Println("Authorized by: ", username)
 
 		var news model.News
 
@@ -120,29 +103,42 @@ func (h *NewsHandler) CreateNews() gin.HandlerFunc {
 			"message": "News created successfully",
 			"image":   filepath,
 		})
-
 	}
 }
 
-// GetAllNews
+// GetAllNewsPagination
 // @Summary Get all news in a specific language
-// @Description Retrieves all news articles available in a specific language by language ID.
+// @Description Retrieves all news articles available in a specific language by language ID with pagination.
 // @Tags News
 // @Accept json
 // @Produce json
-// @Param id query int true "Language ID"
+// @Param lang_id query int true "Language ID"
+// @Param page query int true "Page Number"
+// @Param limit query int true "Limit"
 // @Success 200 {object} response.ErrorResponse "List of news articles"
-// @Failure 400 {object} response.ErrorResponse "Invalid ID"
+// @Failure 400 {object} response.ErrorResponse "Invalid Language ID or Pagination Parameters"
 // @Failure 500 {object} response.ErrorResponse "Internal Server Error"
-// @Router /news/all [get]
-func (h *NewsHandler) GetAllNews(c *gin.Context) {
-	id, err := strconv.Atoi(c.Query("id"))
-	if err != nil {
-		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid ID")
+// @Router /news/all [get].
+func (h *NewsHandler) GetAllNewsPagination(c *gin.Context) {
+	langID, err := strconv.Atoi(c.Query("lang_id"))
+	if err != nil || langID <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid Language ID")
 		return
 	}
 
-	news, err := h.service.GetAllNewsByLangID(id)
+	page, err := strconv.Atoi(c.Query("page"))
+	if err != nil || page <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid Page Number")
+		return
+	}
+
+	limit, err := strconv.Atoi(c.Query("limit"))
+	if err != nil || limit <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid Limit")
+		return
+	}
+
+	news, err := h.service.GetAllNewsByLangID(langID, page, limit)
 	if err != nil {
 		handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -159,12 +155,14 @@ func (h *NewsHandler) GetAllNews(c *gin.Context) {
 // @Tags         News
 // @Accept       json
 // @Produce      json
-// @Param        lang_id     query     int  true  "Language ID (e.g., 1 for Turkmen, 2 for Russian)"
 // @Param        category_id query     int  true  "Category ID"
+// @Param 		 lang_id query int true "Language ID"
+// @Param		 page query int true "Page Number"
+// @Param		 limit query int true "Limit"
 // @Success      200 {object} map[string]interface{} "List of news"
 // @Failure      400 {object} map[string]interface{} "Invalid input"
 // @Failure      500 {object} map[string]interface{} "Internal server error"
-// @Router       /news/category [get]
+// @Router       /news [get].
 func (h *NewsHandler) GetAllNewsByLangAndCategory(c *gin.Context) {
 	langID, err := strconv.Atoi(c.Query("lang_id"))
 	if err != nil {
@@ -173,12 +171,24 @@ func (h *NewsHandler) GetAllNewsByLangAndCategory(c *gin.Context) {
 	}
 
 	categoryID, err := strconv.Atoi(c.Query("category_id"))
-	if err != nil {
+	if err != nil || categoryID <= 0 {
 		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid category ID")
 		return
 	}
 
-	news, err := h.service.GetAllNewsByLangAndCategory(langID, categoryID)
+	limit, err := strconv.Atoi(c.Query("limit"))
+	if err != nil || limit <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid category ID")
+		return
+	}
+
+	page, err := strconv.Atoi(c.Query("page"))
+	if err != nil || page <= 0 {
+		handler.NewErrorResponse(c, http.StatusBadRequest, "Invalid category ID")
+		return
+	}
+
+	news, err := h.service.GetAllNewsByLangAndCategory(langID, categoryID, limit, page)
 	if err != nil {
 		handler.NewErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -197,8 +207,8 @@ func (h *NewsHandler) GetAllNewsByLangAndCategory(c *gin.Context) {
 // @Success 200 {object} response.ErrorResponse "News deleted successfully"
 // @Failure 400 {object} response.ErrorResponse "Invalid ID"
 // @Failure 500 {object} response.ErrorResponse "Could not delete news"
-// @Router /news/delete/{id} [delete]
-// @security BearerAuth
+// @Router /news/{id} [delete]
+// @security BearerAuth.
 func (h *NewsHandler) DeleteNews() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get("Authorization")
@@ -247,6 +257,5 @@ func (h *NewsHandler) DeleteNews() gin.HandlerFunc {
 			"message": "News deleted successfully",
 			"id":      id,
 		})
-
 	}
 }

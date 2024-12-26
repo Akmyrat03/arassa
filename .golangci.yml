@@ -1,25 +1,79 @@
-run:
-  timeout: 2m  # Stop linting if it takes longer than 2 minutes
-  skip-dirs:
-    - vendor  # Ignore vendor folder
-  skip-files:
-    - .*_test\.go  # Ignore test files
-
 linters:
+  disable-all: true
   enable:
-    - govet        # Finds potential bugs
-    - staticcheck  # Advanced static analysis
-    - gofmt        # Enforces Go formatting
-    - gosimple     # Simplifies Go code
-  disable:
-    - errcheck     # Disable checking for unhandled errors
+    - errcheck
+    - gosimple
+    - govet
+    - staticcheck
+    - gocritic
+    - ineffassign
+    - typecheck
+    - unused
+    - asasalint
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - containedctx
+    - decorder
+    - errname
+    - errorlint
+    - exhaustive
+    - copyloopvar
+    - forcetypeassert
+    - gocognit
+    - goconst
+    - godot
+    - goimports
+    - mnd
+    - lll
+    - makezero
+    - nakedret
+    - nestif
+    - nilerr
+    - nilnil
+    - nlreturn
+    - nolintlint
+    - nosprintfhostport
+    - paralleltest
+    - prealloc
+    - promlinter
+    - reassign
+    - revive
+    - rowserrcheck
+    - sqlclosecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+    - gosec
 
 linters-settings:
-  gofmt:
-    simplify: true  # Simplify formatting issues
+  lll:
+    tab-width: 1
+    line-length: 140
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  nakedret:
+    max-func-lines: 30
+  nlreturn:
+    block-size: 4
+  govet:
+    enable-all: false
+    disable-all: false
+  nolintlint:
+    require-explanation: true
+    require-specific: true
+  wsl:
+    allow-cuddle-declarations: true
+    force-err-cuddling: true
+    allow-assign-and-anything: true
+  gocognit:
+    min-complexity: 160
 
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - govet  # Ignore govet issues in test files
+run:
+  timeout: 5m
+  concurrency: 4

@@ -31,7 +31,7 @@ func NewContactHandler(service *service.ContactService) *ContactHandler {
 // @Success 200 {object} response.ErrorResponse "Mesaj başarıyla gönderildi"
 // @Failure 400 {object} response.ErrorResponse "All fields are required"
 // @Failure 500 {object} response.ErrorResponse "Mesaj gönderilemedi"
-// @Router /contact/message [post]
+// @Router /contact [post]
 func (h *ContactHandler) SendMessage(c *gin.Context) {
 	var message model.ContactMessage
 

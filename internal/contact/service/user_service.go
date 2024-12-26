@@ -19,7 +19,7 @@ func NewContactService(repo *repository.ContactRepository) *ContactService {
 	return &ContactService{Repo: repo}
 }
 
-// Gmail bilgileri (Uygulama Şifresi gereklidir)
+// Gmail bilgileri (Uygulama Şifresi gereklidir).
 const (
 	smtpServer = "smtp.gmail.com"
 	smtpPort   = "587"
@@ -28,7 +28,6 @@ const (
 )
 
 func (s *ContactService) SendMessage(ctx context.Context, message model.ContactMessage) error {
-
 	if err := validateEmail(message.Email); err != nil {
 		return err
 	}
@@ -80,21 +79,23 @@ func (s *ContactService) SendMessage(ctx context.Context, message model.ContactM
 	return nil
 }
 
-// Email validation function
+// Email validation function.
 func validateEmail(email string) error {
 	_, err := mail.ParseAddress(email)
 	if err != nil {
 		return errors.New(err.Error())
 	}
+
 	return nil
 }
 
-// Phone number validation function (for Turkmenistan, excluding +993)
+// Phone number validation function (for Turkmenistan, excluding +993).
 func validatePhoneNumber(phoneNumber string) error {
 	// Phone number validation regex: valid prefixes (61, 62, 63, 64, 65, 71) followed by 6 digits
 	re := regexp.MustCompile(`^(61|62|63|64|65|71)\d{6}$`)
 	if !re.MatchString(phoneNumber) {
 		return errors.New("geçersiz telefon numarası formatı")
 	}
+
 	return nil
 }
