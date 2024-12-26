@@ -9,6 +9,12 @@ import (
 	mottoRoutes "arassachylyk/internal/motto/routes"
 	newsRoutes "arassachylyk/internal/news/routes"
 	videoRoutes "arassachylyk/internal/videos/routes"
+	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"arassachylyk/pkg/database"
 	"log"
@@ -81,9 +87,43 @@ func main() {
 	videoRoutes.InitVideoRoutes(api, DB)
 	adminRoutes.InitAdminRoutes(api, DB)
 
-	if err := app.Run(viper.GetString("APP.host")); err != nil {
-		log.Fatalf("Failed running app: %v", err)
+	// if err := app.Run(viper.GetString("APP.host")); err != nil {
+	// 	log.Fatalf("Failed running app: %v", err)
+	// }
+
+	server := &http.Server{
+		Addr:    viper.GetString("APP.host"),
+		Handler: app,
 	}
+
+	go func() {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+	log.Println("Server is running...")
+
+	//Graceful shutdown setup
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting down the server")
+
+	//Timeout context for shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	//Shutdown the http server
+	if err := server.Shutdown(ctx); err != nil {
+		log.Fatalf("Server forced to shutdown: %v", err)
+	}
+
+	//Close database connection
+	if err := DB.Close(); err != nil {
+		log.Fatalf("Failed to close database: %v", err)
+	}
+
+	log.Println("Server exited gracefully")
 }
 
 func InitConfig() error {
