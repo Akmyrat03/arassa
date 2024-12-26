@@ -3,6 +3,7 @@ package handler
 import (
 	"arassachylyk/internal/categories/model"
 	"arassachylyk/internal/categories/service"
+	"arassachylyk/pkg/consts"
 	handler "arassachylyk/pkg/response"
 	"net/http"
 	"strconv"
@@ -40,9 +41,9 @@ func (h *CategoryHandler) CreateCategory() gin.HandlerFunc {
 		categoryRus := c.PostForm("categoryRussian")
 
 		translations := []model.Translation{
-			{Name: categoryTkm, LangID: 1},
-			{Name: categoryEng, LangID: 2},
-			{Name: categoryRus, LangID: 3},
+			{Name: categoryTkm, LangID: consts.LangIDTurkmen},
+			{Name: categoryEng, LangID: consts.LangIDEnglish},
+			{Name: categoryRus, LangID: consts.LangIDRussian},
 		}
 
 		req := model.CategoryReq{

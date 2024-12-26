@@ -7,10 +7,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const (
-	CATEGORIES = "categories"
-)
-
 type CategoryRepository struct {
 	DB *sqlx.DB
 }

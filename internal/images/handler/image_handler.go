@@ -3,6 +3,7 @@ package handler
 import (
 	"arassachylyk/internal/images/model"
 	"arassachylyk/internal/images/service"
+	"arassachylyk/pkg/consts"
 	handler "arassachylyk/pkg/response"
 	"fmt"
 	"net/http"
@@ -11,13 +12,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-)
-
-const (
-	DefaultPermissions = 0755
-	LangIDTurkmen      = 1
-	LangIDEnglish      = 2
-	LangIDRussian      = 3
 )
 
 type ImageHandler struct {
@@ -58,9 +52,9 @@ func (h *ImageHandler) CreateImages() gin.HandlerFunc {
 		titleRus := c.PostForm("titleRussian")
 
 		translations := []model.Translation{
-			{LangID: LangIDTurkmen, Title: titleTkm},
-			{LangID: LangIDEnglish, Title: titleEng},
-			{LangID: LangIDRussian, Title: titleRus},
+			{LangID: consts.LangIDTurkmen, Title: titleTkm},
+			{LangID: consts.LangIDEnglish, Title: titleEng},
+			{LangID: consts.LangIDRussian, Title: titleRus},
 		}
 
 		var images []string
@@ -82,7 +76,7 @@ func (h *ImageHandler) CreateImages() gin.HandlerFunc {
 		uploadDir := "./uploads/images"
 
 		if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-			if err := os.Mkdir(uploadDir, DefaultPermissions); err != nil {
+			if err := os.Mkdir(uploadDir, consts.DefaultPermissions); err != nil {
 				fmt.Printf("Failed to create directory %s: %v\n", uploadDir, err)
 				return
 			}
