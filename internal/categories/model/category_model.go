@@ -1,6 +1,6 @@
 package model
 
-type Category struct {
+type CategoryDAO struct {
 	ID           int           `json:"id" db:"id"`
 	Translations []Translation `json:"translations" binding:"required"`
 }

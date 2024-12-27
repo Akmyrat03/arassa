@@ -1,9 +1,12 @@
+is_debug: true
+listen:
+  type: port
+  port: 2828
+ storage:
 
-
-DB: 
-  username : postgres
-  password : postgres
-  host : localhost
-  port : 5432
-  dbname : arassachylyk
-  sslmode : disable
+  host: localhost
+  port: 5432
+  database: arassachylyk
+  username: postgres
+  password: postgres
+   

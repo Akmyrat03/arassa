@@ -68,7 +68,7 @@ func main() {
 	})
 
 	corsConfig := cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "https://yourfrontend.com"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://arassachylyk.gov.tm"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -78,7 +78,7 @@ func main() {
 
 	app.Use(corsConfig)
 
-	api := app.Group("/api")
+	api := app.Group("/api/v1")
 	mottoRoutes.InitMottoRoutes(api, DB)
 	catRoutes.InitCatRoutes(api, DB)
 	newsRoutes.InitNewsRoutes(api, DB)
