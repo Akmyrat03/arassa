@@ -44,13 +44,22 @@ func main() {
 		log.Fatalf("error initializing configs: %s", err.Error())
 	}
 
+	// DB, err := database.ConnectToDB(database.Config{
+	// 	Host:     viper.GetString("DB.host"),
+	// 	Port:     viper.GetString("DB.port"),
+	// 	Username: viper.GetString("DB.username"),
+	// 	Password: viper.GetString("DB.password"),
+	// 	DBName:   viper.GetString("DB.dbname"),
+	// 	SSLMode:  viper.GetString("DB.sslmode"),
+	// })
+
 	DB, err := database.ConnectToDB(database.Config{
-		Host:     viper.GetString("DB.host"),
-		Port:     viper.GetString("DB.port"),
-		Username: viper.GetString("DB.username"),
-		Password: viper.GetString("DB.password"),
-		DBName:   viper.GetString("DB.dbname"),
-		SSLMode:  viper.GetString("DB.sslmode"),
+		Host:     viper.GetString("storage.host"),
+		Port:     viper.GetString("storage.port"),
+		Username: viper.GetString("storage.username"),
+		Password: viper.GetString("storage.password"),
+		DBName:   viper.GetString("storage.dbname"),
+		SSLMode:  viper.GetString("storage.sslmode"),
 	})
 
 	if err != nil {

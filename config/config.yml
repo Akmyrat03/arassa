@@ -2,11 +2,9 @@ is_debug: true
 listen:
   type: port
   port: 2828
- storage:
-
+storage:
   host: localhost
   port: 5432
-  database: arassachylyk
+  dbname: arassachylyk
   username: postgres
   password: postgres
-   
