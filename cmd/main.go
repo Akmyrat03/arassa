@@ -32,7 +32,7 @@ import (
 // @version 1.0
 // @description Arassachylyk project
 // @host localhost:8000
-// @BasePath /api
+// @BasePath /api/v1
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
@@ -70,7 +70,7 @@ func main() {
 
 	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	// Health check route
-	app.GET("/api/health", func(c *gin.Context) {
+	app.GET("/api/v1/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"status": "healthy",
 		})
