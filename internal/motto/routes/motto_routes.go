@@ -21,6 +21,6 @@ func InitMottoRoutes(router *gin.RouterGroup, db *sqlx.DB) {
 		mottoRoutes.POST("/", mottoHandler.AddMotto())
 		mottoRoutes.DELETE("/:id", mottoHandler.DeleteMotto())
 	}
-	mottoRoutes.GET("/", mottoHandler.GetAllMottos())
+	router.GET("/motto", mottoHandler.GetAllMottos())
 
 }

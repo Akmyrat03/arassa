@@ -8,3 +8,4 @@ storage:
   dbname: arassachylyk
   username: postgres
   password: postgres
+  sslmode: disable
