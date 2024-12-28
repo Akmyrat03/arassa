@@ -44,15 +44,6 @@ func main() {
 		log.Fatalf("error initializing configs: %s", err.Error())
 	}
 
-	// DB, err := database.ConnectToDB(database.Config{
-	// 	Host:     viper.GetString("DB.host"),
-	// 	Port:     viper.GetString("DB.port"),
-	// 	Username: viper.GetString("DB.username"),
-	// 	Password: viper.GetString("DB.password"),
-	// 	DBName:   viper.GetString("DB.dbname"),
-	// 	SSLMode:  viper.GetString("DB.sslmode"),
-	// })
-
 	DB, err := database.ConnectToDB(database.Config{
 		Host:     viper.GetString("storage.host"),
 		Port:     viper.GetString("storage.port"),
@@ -95,10 +86,6 @@ func main() {
 	imgRoutes.InitImageRoutes(api, DB)
 	videoRoutes.InitVideoRoutes(api, DB)
 	adminRoutes.InitAdminRoutes(api, DB)
-
-	// if err := app.Run(viper.GetString("APP.host")); err != nil {
-	// 	log.Fatalf("Failed running app: %v", err)
-	// }
 
 	server := &http.Server{
 		Addr:    viper.GetString("APP.host"),
@@ -143,6 +130,6 @@ func InitConfig() error {
 		return err
 	}
 
-	viper.SetDefault("APP.host", "localhost:8000")
+	viper.SetDefault("APP.host", "localhost:2828")
 	return nil
 }
